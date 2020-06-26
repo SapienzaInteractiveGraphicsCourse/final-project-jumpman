@@ -55,7 +55,7 @@ function main() {
     columnGroup.position.z = 10;
 
     const radius = 4;  
-    const height = 60;  
+    const height = 80;  
     const radialSegments = 30;  
     const cilinderGeo = new THREE.CylinderGeometry(radius, radius, height, radialSegments);
 
@@ -135,10 +135,13 @@ function main() {
                 prob.push(Math.random()/(i+1)*Math.exp(i*this.count*0.01));
             }
 
-            if (this.prev == stepTypes.FAKE)
-                prob[stepTypes.FAKE] = 0;
-            
             this.count++;
+
+            if (this.prev == stepTypes.FAKE){
+                this.prev = 0;
+                return this.prev;
+            }
+
             this.prev = indexOfMax(prob);
             return this.prev;
         }
@@ -297,6 +300,25 @@ function main() {
         }
     }
 
+    const leftDiv = document.getElementById("touch-left");
+    const rightDiv = document.getElementById("touch-right");
+
+    leftDiv.addEventListener("touchstart", function() {
+        move = 1;
+    }, false);
+
+    rightDiv.addEventListener("touchstart", function() {
+        move = -1;
+    }, false);
+
+    leftDiv.addEventListener("touchend", function() {
+        move = 0;
+    }, false);
+
+    rightDiv.addEventListener("touchend", function() {
+        move = 0;
+    }, false);
+
 
 
     function resizeRendererToDisplaySize(renderer) {
@@ -368,7 +390,7 @@ function main() {
                         const y = step.position.y;
 
                         //trovare soluzione migliore
-                        if (camera.position.y>65){
+                        if (camera.position.y>70){
                             const up = new TWEEN.Tween(cylinder.position) 
                                 .to({y: y}, 1000) 
                                 .easing(TWEEN.Easing.Quadratic.Out)
