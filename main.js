@@ -143,7 +143,7 @@ function main() {
     //time to reach terminal velocity 1 s
     //distance traveled until terminal velocity 15m
 
-    const freeFall = new TWEEN.Tween(cube.position)
+    let freeFall = new TWEEN.Tween(cube.position)
         .to({y: '-30'}, 1000)
         .easing(TWEEN.Easing.Linear.None)
         .repeat(Infinity);
@@ -281,10 +281,16 @@ function main() {
                 
 
                 gravityFall.stop();
+
+                freeFall = new TWEEN.Tween(cube.position)
+                    .to({y: '-30'}, 1000)
+                    .easing(TWEEN.Easing.Linear.None)
+                    .repeat(Infinity);
+
                 gravityFall = new TWEEN.Tween(cube.position) 
                     .to({y: '-15'}, 1000)
                     .easing(TWEEN.Easing.Quadratic.In)
-                    .chain(freeFall)
+                    .chain(freeFall);
     
                 const bounce = new TWEEN.Tween(cube.position) 
                     .to({y: '+14'}, 1000) 
