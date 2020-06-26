@@ -31,11 +31,13 @@ function main() {
         groundMaterial,
     );
 
-    ground.position.y = -0.5;
+    
 
     groundGeometry.userData.obb = new OBB();
-    groundGeometry.userData.obb.halfSize = new THREE.Vector3(50, 0.7, 30);
+    groundGeometry.userData.obb.halfSize = new THREE.Vector3(50, 0.5, 30);
     ground.userData.obb = new OBB();
+
+    ground.position.y = -0.5;
 
     scene.add(ground);
 
@@ -54,7 +56,7 @@ function main() {
 
     const radius = 4;  
     const height = 60;  
-    const radialSegments = 12;  
+    const radialSegments = 30;  
     const cilinderGeo = new THREE.CylinderGeometry(radius, radius, height, radialSegments);
 
     const cilinderMat = new THREE.MeshPhongMaterial({
@@ -130,7 +132,7 @@ function main() {
         _next: function() {
             const prob = [];
             for(let i=0; i<4; i++){
-                prob.push(Math.random()/(i+1 -i*this.count*0.01));
+                prob.push(Math.random()/(i+1)*Math.exp(i*this.count*0.01));
             }
 
             if (this.prev == stepTypes.FAKE)
@@ -143,7 +145,7 @@ function main() {
     }
 
     let rotation = 0;
-    let position = 0;
+    let position = 1;
 
     function addSteps(num) {
         const l = allStepsCount+num;
@@ -429,6 +431,8 @@ function main() {
     
         if (cube.userData.obb.intersectsOBB(ground.userData.obb)) {
             gravityFall.stop();
+            document.getElementById("game-over").style.display = "block";
+            return;
         }
 
 
