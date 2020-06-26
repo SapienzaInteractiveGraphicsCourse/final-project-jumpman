@@ -37,6 +37,13 @@ function main() {
     scene.add(ground);*/
 
 
+    //light
+    const color = 0xFFFFFF;
+    const intensity = 1;
+    const light = new THREE.DirectionalLight(color, intensity);
+    light.position.set(-1, 2, 4);
+    scene.add(light);
+
 
     //cilinder
     const columnGroup = new THREE.Object3D();
@@ -49,11 +56,10 @@ function main() {
 
     const cilinderMat = new THREE.MeshPhongMaterial({
         color: 0xFF0000,    // red (can also use a CSS color string here)
-        flatShading: true,
+        //flatShading: true,
     });
 
     const cylinder = new THREE.Mesh(cilinderGeo, cilinderMat);
-    cylinder.rotation.y = 0.26;
     cylinder.position.y = height/2;
 
     scene.add(columnGroup);
@@ -66,34 +72,53 @@ function main() {
     stepGeo.userData.obb = new OBB();
     stepGeo.userData.obb.halfSize = new THREE.Vector3(1, 0.25, 1.5);
 
-    const steps = [];
-    let step_count = 0;
+    const allSteps = [];
+    const realSteps = [];
+    let allStepsCount = 0;
+    let realStepsCount = 0;
+    let lastRealStep = 0;
+    let lastStep = 0;
 
-    for (; step_count<7; step_count++) {
-        let step;
-
-        if(step_count%2==0){
-            step = new THREE.Mesh(stepGeo, realStepMat);
-            step.userData.obb = new OBB();
-            steps.push(step);
-        } else {
-            step = new THREE.Mesh(stepGeo, fakeStepMat);
+    function addSteps(num) {
+        const l = allStepsCount+num;
+        for (; allStepsCount<l; allStepsCount++) {
+            let step;
+    
+            if(allStepsCount%2==0){
+                step = new THREE.Mesh(stepGeo, realStepMat);
+                step.userData.obb = new OBB();
+                step.userData.id = realStepsCount;
+                realStepsCount++;
+                realSteps.push(step);
+            } else {
+                step = new THREE.Mesh(stepGeo, fakeStepMat);
+            }
+    
+            step.name = allStepsCount;
+    
+            step.position.z = radius;
+            step.position.y = 4*allStepsCount;
+    
+            var pivot = new THREE.Object3D();
+            pivot.add(step);
+            pivot.rotation.y = allStepsCount;
+            columnGroup.add(pivot);    
+            
+            allSteps.push(step);
         }
-
-        step.position.z = radius;
-        step.position.y = 4*step_count;
-
-        var pivot = new THREE.Object3D();
-        pivot.add(step);
-        pivot.rotation.y = 1.05*step_count;
-        columnGroup.add(pivot);     
     }
 
-    
+    function removeSteps(num) {
+        for(let i=0; i<num; i++){
+            columnGroup.remove(allSteps[0].parent);
+            if (allSteps[0].userData.id != null) {
+                realSteps.shift();
+            } 
+            allSteps.shift();
+        }
+    }
 
-
-
-
+    addSteps(7);
 
     //box
     const boxSize = 1;
@@ -123,19 +148,6 @@ function main() {
                 .easing(TWEEN.Easing.Linear.None)
             })
         .start()
-
-
-
-
-    //light
-    const color = 0xFFFFFF;
-    const intensity = 1;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(-1, 2, 4);
-    scene.add(light);
-
-
-    let step_num = 0;
 
 
 
@@ -200,11 +212,11 @@ function main() {
         cube.userData.obb.copy( cube.geometry.userData.obb );
         cube.userData.obb.applyMatrix4( cube.matrixWorld );
 
-        for (let i=0; i<steps.length; i++) {
-            steps[i].updateMatrix();
-            steps[i].updateMatrixWorld();
-            steps[i].userData.obb.copy( steps[i].geometry.userData.obb );
-            steps[i].userData.obb.applyMatrix4( steps[i].matrixWorld );
+        for (let i=0; i<realSteps.length; i++) {
+            realSteps[i].updateMatrix();
+            realSteps[i].updateMatrixWorld();
+            realSteps[i].userData.obb.copy( realSteps[i].geometry.userData.obb );
+            realSteps[i].userData.obb.applyMatrix4( realSteps[i].matrixWorld );
         }
 
 
@@ -219,27 +231,31 @@ function main() {
 
 
         //collision
-        for (let i=0; i<steps.length; i++) {
-            if (cube.userData.obb.intersectsOBB(steps[i].userData.obb)) {
-                
-                if (i > step_num) {
+        for (let i=0; i<realSteps.length; i++) {
+            if (cube.userData.obb.intersectsOBB(realSteps[i].userData.obb)) {                
+                if (realSteps[i].userData.id > lastRealStep) {
+                    const stepsJumped = realSteps[i].name - lastStep;
+                    addSteps(stepsJumped);
+                    lastRealStep = realSteps[i].userData.id;
+                    lastStep = realSteps[i].name;
+
+
+                    const y = realSteps[i].position.y;
+
                     //trovare soluzione migliore
                     if (camera.position.y>56){
                         const up = new TWEEN.Tween(cylinder.position) 
-                            .to({y: steps[i].position.y}, 1000) 
+                            .to({y: y}, 1000) 
                             .easing(TWEEN.Easing.Quadratic.Out)
                             .start()
+
+                        removeSteps(stepsJumped);
                         
-
-
-
                     }
                     const up = new TWEEN.Tween(camera.position) 
-                        .to({y: 40+steps[i].position.y}, 1000) 
+                        .to({y: 40+y}, 1000) 
                         .easing(TWEEN.Easing.Quadratic.Out)
-                        .start()
-                    
-                    step_num = i;
+                        .start()    
                 }
                 
 
