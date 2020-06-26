@@ -68,8 +68,17 @@ function main() {
     scene.add(columnGroup);
     columnGroup.add(cylinder);
 
+
+
     const realStepMat = new THREE.MeshPhongMaterial({color: 0x000000});
-    const fakeStepMat = new THREE.MeshPhongMaterial({color: 0xFFFFFF});
+    const fakeStepMat = new THREE.MeshPhongMaterial({
+        color: 0xFFFFFF,
+        opacity: 0.7,
+        transparent: true});
+    const breakableStepMat = new THREE.MeshPhongMaterial({color: 0xD2691E});
+    const breakedStepMat = new THREE.MeshPhongMaterial({color: 0xA52A2A});
+    const movingStepMat = new THREE.MeshPhongMaterial({color: 0x0000FF});
+
 
     const stepGeo = new THREE.BoxBufferGeometry(2, 0.5, 3);
     stepGeo.userData.obb = new OBB();
@@ -82,46 +91,146 @@ function main() {
     let lastRealStep = 0;
     let lastStep = 0;
 
+    const stepTypes = {
+        REAL: 0,
+        MOVING: 1,
+        BREAKABLE: 2,
+        FAKE: 3,
+    }
+
+    function indexOfMax(arr) {
+        if (arr.length === 0) {
+            return -1;
+        }
+    
+        let max = arr[0];
+        let maxIndex = 0;
+    
+        for (let i = 1; i < arr.length; i++) {
+            if (arr[i] > max) {
+                maxIndex = i;
+                max = arr[i];
+            }
+        }
+    
+        return maxIndex;
+    }
+
+    function randomInRange(min, max) {
+        return (Math.random()*(max-min))+max;
+    }
+
+    const getType = {
+        count: 1,
+        prev: 0,
+        next: function () {
+            this.next = this._next;
+            return 0;
+        },
+        _next: function() {
+            const prob = [];
+            for(let i=0; i<4; i++){
+                prob.push(Math.random()/(i+1 -i*this.count*0.01));
+            }
+
+            if (this.prev == stepTypes.FAKE)
+                prob[stepTypes.FAKE] = 0;
+            
+            this.count++;
+            this.prev = indexOfMax(prob);
+            return this.prev;
+        }
+    }
+
+    let rotation = 0;
+    let position = 0;
+
     function addSteps(num) {
         const l = allStepsCount+num;
         for (; allStepsCount<l; allStepsCount++) {
             let step;
-    
-            if(allStepsCount%2==0){
-                step = new THREE.Mesh(stepGeo, realStepMat);
-                step.userData.obb = new OBB();
-                step.userData.id = realStepsCount;
-                realStepsCount++;
-                realSteps.push(step);
-            } else {
-                step = new THREE.Mesh(stepGeo, fakeStepMat);
+
+            let stepType = getType.next();
+
+            switch(stepType) {
+                case stepTypes.REAL:
+                    step = new THREE.Mesh(stepGeo, realStepMat);
+                    step.userData.obb = new OBB();
+                    step.userData.id = realStepsCount;
+                    realStepsCount++;
+                    realSteps.push(step);
+
+                    break;
+                case stepTypes.FAKE:
+                    step = new THREE.Mesh(stepGeo, fakeStepMat);
+
+                    break;
+                case stepTypes.BREAKABLE:
+                    step = new THREE.Mesh(stepGeo, breakableStepMat);
+                    step.userData.obb = new OBB();
+                    step.userData.id = realStepsCount;
+                    realStepsCount++;
+                    realSteps.push(step);
+                    step.userData.status = "intact";
+                    
+                    break;
+                case stepTypes.MOVING:
+                    step = new THREE.Mesh(stepGeo, movingStepMat);
+                    step.userData.obb = new OBB();
+                    step.userData.id = realStepsCount;
+                    realStepsCount++;
+                    realSteps.push(step);
+
+                    break;
             }
     
+            step.userData.type = stepType;
             step.name = allStepsCount;
     
             step.position.z = radius;
-            step.position.y = 4*allStepsCount;
+            step.position.y = position;
+
+
+            if (stepType == stepTypes.MOVING) {
+                const upAndDown = new TWEEN.Tween(step.position) 
+                    .to({y: '+5'}, 1000)
+                    .easing(TWEEN.Easing.Quadratic.InOut)
+                    .yoyo(true)
+                    .repeat(Infinity)
+                    .start();
+            }
     
-            var pivot = new THREE.Object3D();
+            const pivot = new THREE.Object3D();
             pivot.add(step);
-            pivot.rotation.y = allStepsCount;
+            pivot.rotation.y = rotation;
+            
             columnGroup.add(pivot);    
+
+            if (stepType == stepTypes.FAKE) {
+                rotation += 0.8;
+                position += 3;
+            } else {
+                rotation += randomInRange(0.9, 1.1);
+                position += randomInRange(4, 6);
+            }
+                
             
             allSteps.push(step);
+
         }
     }
 
     function removeSteps(num) {
         for(let i=0; i<num; i++){
             columnGroup.remove(allSteps[0].parent);
-            if (allSteps[0].userData.id != null) {
+            if (allSteps[0].userData.type != stepTypes.FAKE) {
                 realSteps.shift();
             } 
             allSteps.shift();
         }
     }
 
-    addSteps(7);
+    addSteps(9);
 
     //box
     const boxSize = 1;
@@ -154,18 +263,6 @@ function main() {
         .chain(freeFall)
         .start();
     
-    
-    /*let down = new TWEEN.Tween(cube.position) 
-        .to({y: '-15'}, 1000)
-        .easing(TWEEN.Easing.Quadratic.In)
-        .repeat(Infinity)
-        .onRepeat(function() {
-            down.to({y: '-30'}, 1000)
-                .easing(TWEEN.Easing.Linear.None)
-            })
-        .start()*/
-
-
 
     //controls
     let move = 0;
@@ -211,6 +308,8 @@ function main() {
         return needResize;
     }
 
+    let bouncing = false;
+
     function render(time) {
         //time *= 0.001;  // convert time to seconds
         TWEEN.update(time);
@@ -252,53 +351,76 @@ function main() {
 
 
         //collision
-        for (let i=0; i<realSteps.length; i++) {
-            if (cube.userData.obb.intersectsOBB(realSteps[i].userData.obb)) {                
-                if (realSteps[i].userData.id > lastRealStep) {
-                    const stepsJumped = realSteps[i].name - lastStep;
-                    addSteps(stepsJumped);
-                    lastRealStep = realSteps[i].userData.id;
-                    lastStep = realSteps[i].name;
+        if (!bouncing) {
+            for (let i=0; i<realSteps.length; i++) {
+                if (cube.userData.obb.intersectsOBB(realSteps[i].userData.obb)) {
+                    const step = realSteps[i];       
+                    if (step.userData.id > lastRealStep) {
+                        const stepsJumped = step.name - lastStep;
+                        addSteps(stepsJumped);
+                        lastRealStep = step.userData.id;
+                        lastStep = step.name;
 
 
-                    const y = realSteps[i].position.y;
+                        const y = step.position.y;
 
-                    //trovare soluzione migliore
-                    if (camera.position.y>56){
-                        const up = new TWEEN.Tween(cylinder.position) 
-                            .to({y: y}, 1000) 
+                        //trovare soluzione migliore
+                        if (camera.position.y>65){
+                            const up = new TWEEN.Tween(cylinder.position) 
+                                .to({y: y}, 1000) 
+                                .easing(TWEEN.Easing.Quadratic.Out)
+                                .start();
+
+                            removeSteps(stepsJumped);
+                            
+                        }
+                        const up = new TWEEN.Tween(camera.position) 
+                            .to({y: 40+y}, 1000) 
                             .easing(TWEEN.Easing.Quadratic.Out)
-                            .start();
-
-                        removeSteps(stepsJumped);
-                        
+                            .start(); 
                     }
-                    const up = new TWEEN.Tween(camera.position) 
-                        .to({y: 40+y}, 1000) 
+
+
+                    if(step.userData.type == stepTypes.BREAKABLE) {
+                        if(step.userData.status == 'intact') {
+                            step.userData.status = 'breaked';
+                            step.material = breakedStepMat;
+                        } else {
+                            const fall = new TWEEN.Tween(step.position)
+                                .to({y: '-30'}, 700)
+                                .easing(TWEEN.Easing.Linear.None)
+                                .repeat(Infinity)
+                                .start();
+                            break;
+                        }
+                    }
+
+                    gravityFall.stop();
+
+                    freeFall = new TWEEN.Tween(cube.position)
+                        .to({y: '-30'}, 1000)
+                        .easing(TWEEN.Easing.Linear.None)
+                        .repeat(Infinity);
+
+                    gravityFall = new TWEEN.Tween(cube.position) 
+                        .to({y: '-15'}, 1000)
+                        .easing(TWEEN.Easing.Quadratic.In)
+                        .chain(freeFall);
+        
+                    const bounce = new TWEEN.Tween(cube.position) 
+                        .to({y: '+14'}, 1000) 
                         .easing(TWEEN.Easing.Quadratic.Out)
-                        .start(); 
+                        .onStart(function() {
+                            bouncing = true;
+                        })
+                        .onComplete(function() {
+                            bouncing = false;
+                        })
+                        .chain(gravityFall)
+                        .start();
+                    
+                    break;
                 }
-                
-
-                gravityFall.stop();
-
-                freeFall = new TWEEN.Tween(cube.position)
-                    .to({y: '-30'}, 1000)
-                    .easing(TWEEN.Easing.Linear.None)
-                    .repeat(Infinity);
-
-                gravityFall = new TWEEN.Tween(cube.position) 
-                    .to({y: '-15'}, 1000)
-                    .easing(TWEEN.Easing.Quadratic.In)
-                    .chain(freeFall);
-    
-                const bounce = new TWEEN.Tween(cube.position) 
-                    .to({y: '+14'}, 1000) 
-                    .easing(TWEEN.Easing.Quadratic.Out)
-                    .chain(gravityFall)
-                    .start();
-                
-                break;
             }
         }
     
