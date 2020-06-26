@@ -24,17 +24,20 @@ function main() {
 
 
     //ground
-
-    /*const groundMaterial = new THREE.MeshBasicMaterial({color: 'grey'});
-
+    const groundMaterial = new THREE.MeshBasicMaterial({color: 'grey'});
+    const groundGeometry = new THREE.BoxBufferGeometry(100, 1, 60);
     const ground = new THREE.Mesh(
-        new THREE.BoxGeometry(100, 1, 100),
+        groundGeometry,
         groundMaterial,
     );
 
     ground.position.y = -0.5;
 
-    scene.add(ground);*/
+    groundGeometry.userData.obb = new OBB();
+    groundGeometry.userData.obb.halfSize = new THREE.Vector3(50, 0.7, 30);
+    ground.userData.obb = new OBB();
+
+    scene.add(ground);
 
 
     //light
@@ -139,7 +142,20 @@ function main() {
     //terminal velocity 30 m/s
     //time to reach terminal velocity 1 s
     //distance traveled until terminal velocity 15m
-    let down = new TWEEN.Tween(cube.position) 
+
+    const freeFall = new TWEEN.Tween(cube.position)
+        .to({y: '-30'}, 1000)
+        .easing(TWEEN.Easing.Linear.None)
+        .repeat(Infinity);
+    
+    let gravityFall = new TWEEN.Tween(cube.position) 
+        .to({y: '-15'}, 1000)
+        .easing(TWEEN.Easing.Quadratic.In)
+        .chain(freeFall)
+        .start();
+    
+    
+    /*let down = new TWEEN.Tween(cube.position) 
         .to({y: '-15'}, 1000)
         .easing(TWEEN.Easing.Quadratic.In)
         .repeat(Infinity)
@@ -147,7 +163,7 @@ function main() {
             down.to({y: '-30'}, 1000)
                 .easing(TWEEN.Easing.Linear.None)
             })
-        .start()
+        .start()*/
 
 
 
@@ -212,6 +228,11 @@ function main() {
         cube.userData.obb.copy( cube.geometry.userData.obb );
         cube.userData.obb.applyMatrix4( cube.matrixWorld );
 
+        ground.updateMatrix();
+        ground.updateMatrixWorld();
+        ground.userData.obb.copy( ground.geometry.userData.obb );
+        ground.userData.obb.applyMatrix4( ground.matrixWorld );
+
         for (let i=0; i<realSteps.length; i++) {
             realSteps[i].updateMatrix();
             realSteps[i].updateMatrixWorld();
@@ -247,7 +268,7 @@ function main() {
                         const up = new TWEEN.Tween(cylinder.position) 
                             .to({y: y}, 1000) 
                             .easing(TWEEN.Easing.Quadratic.Out)
-                            .start()
+                            .start();
 
                         removeSteps(stepsJumped);
                         
@@ -255,30 +276,29 @@ function main() {
                     const up = new TWEEN.Tween(camera.position) 
                         .to({y: 40+y}, 1000) 
                         .easing(TWEEN.Easing.Quadratic.Out)
-                        .start()    
+                        .start(); 
                 }
                 
 
-                down.stop();
-                down = new TWEEN.Tween(cube.position) 
+                gravityFall.stop();
+                gravityFall = new TWEEN.Tween(cube.position) 
                     .to({y: '-15'}, 1000)
                     .easing(TWEEN.Easing.Quadratic.In)
-                    .repeat(Infinity)
-                    .onRepeat(function() {
-                        down.to({y: '-30'}, 1000)
-                            .easing(TWEEN.Easing.Linear.None)
-                    })
+                    .chain(freeFall)
     
-                const up = new TWEEN.Tween(cube.position) 
-                    .to({y: '+15'}, 1000) 
+                const bounce = new TWEEN.Tween(cube.position) 
+                    .to({y: '+14'}, 1000) 
                     .easing(TWEEN.Easing.Quadratic.Out)
-                    .chain(down)
-                    .start()
+                    .chain(gravityFall)
+                    .start();
                 
                 break;
             }
         }
     
+        if (cube.userData.obb.intersectsOBB(ground.userData.obb)) {
+            gravityFall.stop();
+        }
 
 
         //cylinder rotation
