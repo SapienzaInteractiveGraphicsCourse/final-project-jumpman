@@ -2,6 +2,10 @@ import * as THREE from './js/three.module.js';
 import { OBB } from './js/OBB.js';
 
 function main() {
+    var stats = new Stats();
+    stats.showPanel(0);
+    document.body.appendChild(stats.dom);
+
     const canvas = document.querySelector('#c');
     const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
 
@@ -335,6 +339,7 @@ function main() {
     let bouncing = false;
 
     function render(time) {
+        stats.begin();
         //time *= 0.001;  // convert time to seconds
         TWEEN.update(time);
 
@@ -461,7 +466,7 @@ function main() {
         //cylinder rotation
         columnGroup.rotation.y += 0.02 * move;
 
-
+        stats.end();
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
