@@ -345,9 +345,10 @@ function main() {
         frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 
 
-        /*if (!frustum.containsPoint()) {
-            console.log("It's off-screen!");
-        }*/
+        if (!frustum.containsPoint(cube.position)) {
+            document.getElementById("game-over").style.display = "block";
+            return;
+        }
 
 
         //collision
@@ -423,6 +424,8 @@ function main() {
                 }
             }
         }
+
+        document.getElementById("score").innerHTML = "SCORE:"+Math.floor(camera.position.y-40);
     
         if (cube.userData.obb.intersectsOBB(ground.userData.obb)) {
             gravityFall.stop();
