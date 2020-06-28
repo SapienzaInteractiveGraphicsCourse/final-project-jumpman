@@ -1,12 +1,114 @@
 import * as THREE from './js/three.module.js';
 import { OBB } from './js/OBB.js';
 
-function main() {
+
+function setCookie(cname, cvalue) {
+    document.cookie = cname + "=" + cvalue;
+}
+  
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+  
+
+function getLeaderboard() {
+    const leaderboard = getCookie("leaderboard");
+    if (leaderboard != "")
+        return JSON.parse(getCookie("leaderboard"));
+    else return [];
+}
+  
+function addToLeaderboard(player, score) {
+    const leaderboard = getLeaderboard();
+    leaderboard.push({
+        player: player,
+        score: score
+    });
+    setCookie("leaderboard", JSON.stringify(leaderboard));
+}
+
+function clearLeaderboard() {
+    setCookie("leaderboard", "");
+}
+
+function gameOver(score) {
+    const gameOverDiv = document.createElement("div");
+    gameOverDiv.setAttribute("id", "game-over");
+    document.body.appendChild(gameOverDiv);
+
+    const gameOverText = document.createElement("h");
+    gameOverText.innerText = "Game Over";
+    gameOverDiv.appendChild(gameOverText);
+
+    const newGameBt = document.createElement("button");
+    newGameBt.setAttribute("class", "game-button");
+    newGameBt.innerText = "New Game";
+    newGameBt.onclick = newGame;
+    gameOverDiv.appendChild(newGameBt);
+
+    const menuBt = document.createElement("button");
+    menuBt.setAttribute("class", "game-button");
+    menuBt.innerText = "Back to menu";
+    menuBt.onclick = mainMenu;
+    gameOverDiv.appendChild(menuBt);
+
+    const player = prompt("Please enter your name:", "");
+    addToLeaderboard(player, score);
+}
+
+function newGame() {
+    document.body.innerHTML = "";
+
+    const touchLeft = document.createElement("div");
+    touchLeft.setAttribute("id", "touch-left");
+    document.body.appendChild(touchLeft);
+
+    const touchRight = document.createElement("div");
+    touchRight.setAttribute("id", "touch-right");
+    document.body.appendChild(touchRight);
+
+    touchLeft.addEventListener("touchstart", function() {
+        move = 1;
+    }, false);
+
+    touchRight.addEventListener("touchstart", function() {
+        move = -1;
+    }, false);
+
+    touchRight.addEventListener("touchend", function() {
+        move = 0;
+    }, false);
+
+    touchLeft.addEventListener("touchend", function() {
+        move = 0;
+    }, false);
+
+    const scoreDiv = document.createElement("div");
+    scoreDiv.setAttribute("id", "score");
+    scoreDiv.innerText = "SCORE:0";
+    document.body.appendChild(scoreDiv);
+
+
     var stats = new Stats();
     stats.showPanel(0);
     document.body.appendChild(stats.dom);
 
-    const canvas = document.querySelector('#c');
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("id", "c");
+    document.body.appendChild(canvas);
+
     const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
 
     
@@ -354,24 +456,7 @@ function main() {
         }
     }
 
-    const leftDiv = document.getElementById("touch-left");
-    const rightDiv = document.getElementById("touch-right");
-
-    leftDiv.addEventListener("touchstart", function() {
-        move = 1;
-    }, false);
-
-    rightDiv.addEventListener("touchstart", function() {
-        move = -1;
-    }, false);
-
-    leftDiv.addEventListener("touchend", function() {
-        move = 0;
-    }, false);
-
-    rightDiv.addEventListener("touchend", function() {
-        move = 0;
-    }, false);
+    
 
     function isIOS() {
         var iosQuirkPresent = function () {
@@ -438,11 +523,6 @@ function main() {
         camera.updateMatrixWorld();
         frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 
-
-        if (!frustum.containsPoint(new THREE.Vector3(0, 2, 0).add(cube.position))) {
-            document.getElementById("game-over").style.display = "block";
-            return;
-        }
 
         if (!frustum.containsPoint(allSteps[0].position)) {
             removeSteps(1);
@@ -569,14 +649,15 @@ function main() {
             }
         }
 
-        document.getElementById("score").innerHTML = "SCORE:"+Math.floor(camera.position.y-40);
+        const score = Math.floor(camera.position.y-40);
+        scoreDiv.innerText = "SCORE:"+score;
     
-        if (cube.userData.obb.intersectsOBB(ground.userData.obb)) {
+        if (cube.userData.obb.intersectsOBB(ground.userData.obb) ||
+        !frustum.containsPoint(new THREE.Vector3(0, 2, 0).add(cube.position))) {
             gravityFall.stop();
-            document.getElementById("game-over").style.display = "block";
+            gameOver(score);
             return;
         }
-
 
         //cylinder rotation
         columnGroup.rotation.y += 0.02 * move;
@@ -586,7 +667,64 @@ function main() {
         requestAnimationFrame(render);
     }
     requestAnimationFrame(render);
-
 }
 
-main();
+function tutorial() {
+    document.body.innerHTML = "";
+}
+
+function leaderboard() {
+    document.body.innerHTML = "";
+
+    const table = document.createElement("table");
+    const tHeaderRow = table.createTHead().insertRow(0);
+    tHeaderRow.insertCell(0).innerText = "Player";
+    tHeaderRow.insertCell(1).innerText = "Score";
+
+    const tBody = table.createTBody();
+    const leaderboard = getLeaderboard();
+
+    for (let i=0; i<leaderboard.length; i++) {
+        const row = tBody.insertRow();
+        row.insertCell(0).innerText = leaderboard[i].player;
+        row.insertCell(1).innerText = leaderboard[i].score;
+    }
+   
+    document.body.appendChild(table);
+
+    const menuBt = document.createElement("button");
+    menuBt.setAttribute("class", "menu-button");
+    menuBt.innerText = "Back to menu";
+    menuBt.onclick = mainMenu;
+    document.body.appendChild(menuBt);
+}
+
+function mainMenu() {
+    document.body.innerHTML = "";
+
+    const title = document.createElement("h");
+    title.innerText = "JumpMan";
+    document.body.appendChild(title);
+
+    const newGameBt = document.createElement("button");
+    newGameBt.setAttribute("class", "menu-button");
+    newGameBt.innerText = "New Game";
+    newGameBt.onclick = newGame;
+    document.body.appendChild(newGameBt);
+
+    const tutorialBt = document.createElement("button");
+    tutorialBt.setAttribute("class", "menu-button");
+    tutorialBt.innerText = "Tutorial";
+    tutorialBt.onclick = tutorial;
+    document.body.appendChild(tutorialBt);
+
+    const leaderboardBt = document.createElement("button");
+    leaderboardBt.setAttribute("class", "menu-button");
+    leaderboardBt.innerText = "Leaderboard";
+    leaderboardBt.onclick = leaderboard;
+    document.body.appendChild(leaderboardBt);
+}
+
+window.onload = function() {
+    mainMenu();
+}
