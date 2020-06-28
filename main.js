@@ -85,6 +85,10 @@ function main() {
     const breakedStepMat = new THREE.MeshPhongMaterial({color: 0xA52A2A});
     const movingStepMat = new THREE.MeshPhongMaterial({color: 0x0000FF});
     const highJumpStepMat = new THREE.MeshPhongMaterial({color: 0xDC143C});
+    const fadeStepMat = new THREE.MeshPhongMaterial({
+        color: 0xF8F8FF,
+        opacity: 1,
+        transparent: true});
 
 
     const stepGeo = new THREE.BoxBufferGeometry(2, 0.5, 3);
@@ -103,7 +107,8 @@ function main() {
         MOVING: 1,
         HIGH_JUMP: 2,
         BREAKABLE: 3,
-        FAKE: 4,
+        FADE: 4,
+        FAKE: 5
     }
 
     function indexOfMax(arr) {
@@ -137,7 +142,7 @@ function main() {
         },
         _next: function() {
             const prob = [];
-            for(let i=0; i<4; i++){
+            for(let i=0; i<=5; i++){
                 prob.push(Math.random()/(i+1)*Math.exp(i*this.count*0.01));
             }
 
@@ -199,6 +204,21 @@ function main() {
                     step.userData.id = realStepsCount;
                     realStepsCount++;
                     realSteps.push(step);
+
+                    break;
+                case stepTypes.FADE:
+                    step = new THREE.Mesh(stepGeo, fadeStepMat);
+                    step.userData.obb = new OBB();
+                    step.userData.id = realStepsCount;
+                    realStepsCount++;
+                    realSteps.push(step);
+
+                    const fade = new TWEEN.Tween(step.material) 
+                    .to({opacity: 0}, 2000)
+                    .easing(TWEEN.Easing.Exponential.InOut)
+                    .yoyo(true)
+                    .repeat(Infinity)
+                    .start();
 
                     break;
             }
@@ -333,11 +353,25 @@ function main() {
         move = 0;
     }, false);
 
-
+    function isIOS() {
+        var iosQuirkPresent = function () {
+            var audio = new Audio();
+    
+            audio.volume = 0.5;
+            return audio.volume === 1;   // volume cannot be changed from "1" on iOS 12 and below
+        };
+    
+        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        var isAppleDevice = navigator.userAgent.includes('Macintosh');
+        var isTouchScreen = navigator.maxTouchPoints >= 1;   // true for iOS 13 (and hopefully beyond)
+    
+        return isIOS || (isAppleDevice && (isTouchScreen || iosQuirkPresent()));
+    }
 
     function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
-        const pixelRatio = window.devicePixelRatio;
+        let pixelRatio = 1;
+        if (isIOS()) pixelRatio = window.devicePixelRatio;
         const width  = canvas.clientWidth  * pixelRatio | 0;
         const height = canvas.clientHeight * pixelRatio | 0;
         const needResize = canvas.width !== width || canvas.height !== height;
@@ -385,7 +419,7 @@ function main() {
         frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 
 
-        if (!frustum.containsPoint(cube.position)) {
+        if (!frustum.containsPoint(new THREE.Vector3(0, 2, 0).add(cube.position))) {
             document.getElementById("game-over").style.display = "block";
             return;
         }
@@ -395,7 +429,8 @@ function main() {
         if (!bouncing) {
             for (let i=0; i<realSteps.length; i++) {
                 if (cube.userData.obb.intersectsOBB(realSteps[i].userData.obb)) {
-                    const step = realSteps[i];    
+                    const step = realSteps[i];   
+                    if (step.material.opacity < 0.2) break; 
                     if (step.userData.type == stepTypes.HIGH_JUMP) {
                         const stepsJumped = step.name - lastStep;
                         addSteps(stepsJumped);
