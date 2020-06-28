@@ -21,7 +21,6 @@ function getCookie(cname) {
     }
     return "";
 }
-  
 
 function getLeaderboard() {
     const leaderboard = getCookie("leaderboard");
@@ -31,7 +30,8 @@ function getLeaderboard() {
 }
   
 function addToLeaderboard(player, score) {
-    const leaderboard = getLeaderboard();
+    if (player == null) return;
+    let leaderboard = getLeaderboard();
     leaderboard.push({
         player: player,
         score: score
@@ -683,6 +683,15 @@ function leaderboard() {
 
     const tBody = table.createTBody();
     const leaderboard = getLeaderboard();
+
+    leaderboard.sort(function(a, b){
+        const diff = b.score-a.score;
+        console.log(a);
+        if (b.score-a.score == 0)
+            return a.player.localeCompare(b.player);
+        else 
+            return diff;
+    });
 
     for (let i=0; i<leaderboard.length; i++) {
         const row = tBody.insertRow();
