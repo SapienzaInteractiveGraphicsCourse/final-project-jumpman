@@ -90,6 +90,13 @@ function main() {
         opacity: 1,
         transparent: true});
 
+    const fade = new TWEEN.Tween(fadeStepMat) 
+    .to({opacity: 0}, 2000)
+    .easing(TWEEN.Easing.Exponential.InOut)
+    .yoyo(true)
+    .repeat(Infinity)
+    .start();
+
 
     const stepGeo = new THREE.BoxBufferGeometry(2, 0.5, 3);
     stepGeo.userData.obb = new OBB();
@@ -142,14 +149,34 @@ function main() {
         },
         _next: function() {
             const prob = [];
-            for(let i=0; i<=5; i++){
-                prob.push(Math.random()/(i+1)*Math.exp(i*this.count*0.01));
+            if (this.count<60) {
+                for(let i=0; i<=5; i++){
+                    prob.push(Math.random()/(i+1)*Math.exp(i*this.count*0.01));
+                }
+
+                this.count++;
+            }  else {
+                prob.push(0);
+                for(let i=1; i<=5; i++){
+                    prob.push(Math.random());
+                }
+
+                if (this.prev == stepTypes.REAL){
+                    prob[stepTypes.FAKE]/=2;
+                }
+
+                if (this.prev == stepTypes.HIGH_JUMP){
+                    prob[stepTypes.HIGH_JUMP] = 0;
+                }
+            }
+            
+
+            if (this.prev == stepTypes.FADE){
+                prob[stepTypes.FADE] = 0;
             }
 
-            this.count++;
-
             if (this.prev == stepTypes.FAKE){
-                this.prev = 0;
+                this.prev = stepTypes.REAL;
                 return this.prev;
             }
 
@@ -212,13 +239,6 @@ function main() {
                     step.userData.id = realStepsCount;
                     realStepsCount++;
                     realSteps.push(step);
-
-                    const fade = new TWEEN.Tween(step.material) 
-                    .to({opacity: 0}, 2000)
-                    .easing(TWEEN.Easing.Exponential.InOut)
-                    .yoyo(true)
-                    .repeat(Infinity)
-                    .start();
 
                     break;
             }
