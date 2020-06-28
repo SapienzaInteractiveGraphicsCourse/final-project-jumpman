@@ -84,6 +84,7 @@ function main() {
     const breakableStepMat = new THREE.MeshPhongMaterial({color: 0xD2691E});
     const breakedStepMat = new THREE.MeshPhongMaterial({color: 0xA52A2A});
     const movingStepMat = new THREE.MeshPhongMaterial({color: 0x0000FF});
+    const highJumpStepMat = new THREE.MeshPhongMaterial({color: 0xDC143C});
 
 
     const stepGeo = new THREE.BoxBufferGeometry(2, 0.5, 3);
@@ -100,8 +101,9 @@ function main() {
     const stepTypes = {
         REAL: 0,
         MOVING: 1,
-        BREAKABLE: 2,
-        FAKE: 3,
+        HIGH_JUMP: 2,
+        BREAKABLE: 3,
+        FAKE: 4,
     }
 
     function indexOfMax(arr) {
@@ -185,6 +187,14 @@ function main() {
                     break;
                 case stepTypes.MOVING:
                     step = new THREE.Mesh(stepGeo, movingStepMat);
+                    step.userData.obb = new OBB();
+                    step.userData.id = realStepsCount;
+                    realStepsCount++;
+                    realSteps.push(step);
+
+                    break;
+                case stepTypes.HIGH_JUMP:
+                    step = new THREE.Mesh(stepGeo, highJumpStepMat);
                     step.userData.obb = new OBB();
                     step.userData.id = realStepsCount;
                     realStepsCount++;
@@ -385,7 +395,58 @@ function main() {
         if (!bouncing) {
             for (let i=0; i<realSteps.length; i++) {
                 if (cube.userData.obb.intersectsOBB(realSteps[i].userData.obb)) {
-                    const step = realSteps[i];       
+                    const step = realSteps[i];    
+                    if (step.userData.type == stepTypes.HIGH_JUMP) {
+                        const stepsJumped = step.name - lastStep;
+                        addSteps(stepsJumped);
+                        lastRealStep = step.userData.id;
+                        lastStep = step.name;
+
+
+                        const y = step.position.y+30;
+
+                        //trovare soluzione migliore
+                        if (camera.position.y>50){
+                            const up = new TWEEN.Tween(cylinder.position) 
+                                .to({y: y}, 1000) 
+                                .easing(TWEEN.Easing.Quadratic.Out)
+                                .start();
+
+                            removeSteps(stepsJumped);
+                            
+                        }
+
+                        const up = new TWEEN.Tween(camera.position) 
+                            .to({y: 40+y}, 1000) 
+                            .easing(TWEEN.Easing.Quadratic.Out)
+                            .start();
+
+                        gravityFall.stop();
+
+                        freeFall = new TWEEN.Tween(cube.position)
+                            .to({y: '-30'}, 1000)
+                            .easing(TWEEN.Easing.Linear.None)
+                            .repeat(Infinity);
+    
+                        gravityFall = new TWEEN.Tween(cube.position) 
+                            .to({y: '-15'}, 1000)
+                            .easing(TWEEN.Easing.Quadratic.In)
+                            .chain(freeFall);
+            
+                        const bounce = new TWEEN.Tween(cube.position) 
+                            .to({y: '+44'}, 1000) 
+                            .easing(TWEEN.Easing.Quadratic.Out)
+                            .onStart(function() {
+                                bouncing = true;
+                            })
+                            .onComplete(function() {
+                                bouncing = false;
+                            })
+                            .chain(gravityFall)
+                            .start();
+                        
+                        break;
+                    }
                     if (step.userData.id > lastRealStep) {
                         const stepsJumped = step.name - lastStep;
                         addSteps(stepsJumped);
