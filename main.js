@@ -424,6 +424,10 @@ function main() {
             return;
         }
 
+        if (!frustum.containsPoint(allSteps[0].position)) {
+            removeSteps(1);
+        }
+
 
         //collision
         if (!bouncing) {
@@ -445,10 +449,7 @@ function main() {
                             const up = new TWEEN.Tween(cylinder.position) 
                                 .to({y: y}, 1000) 
                                 .easing(TWEEN.Easing.Quadratic.Out)
-                                .start();
-
-                            removeSteps(stepsJumped);
-                            
+                                .start();                            
                         }
 
                         const up = new TWEEN.Tween(camera.position) 
@@ -496,10 +497,7 @@ function main() {
                             const up = new TWEEN.Tween(cylinder.position) 
                                 .to({y: y}, 1000) 
                                 .easing(TWEEN.Easing.Quadratic.Out)
-                                .start();
-
-                            removeSteps(stepsJumped);
-                            
+                                .start();                            
                         }
                         const up = new TWEEN.Tween(camera.position) 
                             .to({y: 40+y}, 1000) 
