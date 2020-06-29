@@ -2,26 +2,6 @@ import * as THREE from './js/three.module.js';
 import { OBB } from './js/OBB.js';
 
 
-function setCookie(cname, cvalue) {
-    document.cookie = cname + "=" + cvalue;
-}
-  
-function getCookie(cname) {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-}
-
 function getLeaderboard() {
     const leaderboard = getCookie("leaderboard");
     if (leaderboard != "")
@@ -686,7 +666,6 @@ function leaderboard() {
 
     leaderboard.sort(function(a, b){
         const diff = b.score-a.score;
-        console.log(a);
         if (b.score-a.score == 0)
             return a.player.localeCompare(b.player);
         else 
