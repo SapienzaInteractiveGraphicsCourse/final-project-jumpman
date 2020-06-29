@@ -1,27 +1,9 @@
 import * as THREE from './js/three.module.js';
-import { OBB } from './js/OBB.js';
+import {OBB} from './js/OBB.js';
+import {indexOfMax, randomInRange, resizeRendererToDisplaySize} from './js/utils.js';
+import {addToLeaderboard} from './leaderboard.js';
+import {mainMenu} from './menu.js';
 
-
-function getLeaderboard() {
-    const leaderboard = getCookie("leaderboard");
-    if (leaderboard != "")
-        return JSON.parse(getCookie("leaderboard"));
-    else return [];
-}
-  
-function addToLeaderboard(player, score) {
-    if (player == null) return;
-    let leaderboard = getLeaderboard();
-    leaderboard.push({
-        player: player,
-        score: score
-    });
-    setCookie("leaderboard", JSON.stringify(leaderboard));
-}
-
-function clearLeaderboard() {
-    setCookie("leaderboard", "");
-}
 
 function gameOver(score) {
     const gameOverDiv = document.createElement("div");
@@ -198,28 +180,6 @@ function newGame() {
         BREAKABLE: 3,
         FADE: 4,
         FAKE: 5
-    }
-
-    function indexOfMax(arr) {
-        if (arr.length === 0) {
-            return -1;
-        }
-    
-        let max = arr[0];
-        let maxIndex = 0;
-    
-        for (let i = 1; i < arr.length; i++) {
-            if (arr[i] > max) {
-                maxIndex = i;
-                max = arr[i];
-            }
-        }
-    
-        return maxIndex;
-    }
-
-    function randomInRange(min, max) {
-        return (Math.random()*(max-min))+max;
     }
 
     const getType = {
@@ -436,41 +396,11 @@ function newGame() {
         }
     }
 
-    
-
-    function isIOS() {
-        var iosQuirkPresent = function () {
-            var audio = new Audio();
-    
-            audio.volume = 0.5;
-            return audio.volume === 1;   // volume cannot be changed from "1" on iOS 12 and below
-        };
-    
-        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        var isAppleDevice = navigator.userAgent.includes('Macintosh');
-        var isTouchScreen = navigator.maxTouchPoints >= 1;   // true for iOS 13 (and hopefully beyond)
-    
-        return isIOS || (isAppleDevice && (isTouchScreen || iosQuirkPresent()));
-    }
-
-    function resizeRendererToDisplaySize(renderer) {
-        const canvas = renderer.domElement;
-        let pixelRatio = 1;
-        if (isIOS()) pixelRatio = window.devicePixelRatio;
-        const width  = canvas.clientWidth  * pixelRatio | 0;
-        const height = canvas.clientHeight * pixelRatio | 0;
-        const needResize = canvas.width !== width || canvas.height !== height;
-        if (needResize) {
-            renderer.setSize(width, height, false);
-        }
-        return needResize;
-    }
 
     let bouncing = false;
 
     function render(time) {
         stats.begin();
-        //time *= 0.001;  // convert time to seconds
         TWEEN.update(time);
 
         if (resizeRendererToDisplaySize(renderer)) {
@@ -649,70 +579,4 @@ function newGame() {
     requestAnimationFrame(render);
 }
 
-function tutorial() {
-    document.body.innerHTML = "";
-}
-
-function leaderboard() {
-    document.body.innerHTML = "";
-
-    const table = document.createElement("table");
-    const tHeaderRow = table.createTHead().insertRow(0);
-    tHeaderRow.insertCell(0).innerText = "Player";
-    tHeaderRow.insertCell(1).innerText = "Score";
-
-    const tBody = table.createTBody();
-    const leaderboard = getLeaderboard();
-
-    leaderboard.sort(function(a, b){
-        const diff = b.score-a.score;
-        if (b.score-a.score == 0)
-            return a.player.localeCompare(b.player);
-        else 
-            return diff;
-    });
-
-    for (let i=0; i<leaderboard.length; i++) {
-        const row = tBody.insertRow();
-        row.insertCell(0).innerText = leaderboard[i].player;
-        row.insertCell(1).innerText = leaderboard[i].score;
-    }
-   
-    document.body.appendChild(table);
-
-    const menuBt = document.createElement("button");
-    menuBt.setAttribute("class", "menu-button");
-    menuBt.innerText = "Back to menu";
-    menuBt.onclick = mainMenu;
-    document.body.appendChild(menuBt);
-}
-
-function mainMenu() {
-    document.body.innerHTML = "";
-
-    const title = document.createElement("h");
-    title.innerText = "JumpMan";
-    document.body.appendChild(title);
-
-    const newGameBt = document.createElement("button");
-    newGameBt.setAttribute("class", "menu-button");
-    newGameBt.innerText = "New Game";
-    newGameBt.onclick = newGame;
-    document.body.appendChild(newGameBt);
-
-    const tutorialBt = document.createElement("button");
-    tutorialBt.setAttribute("class", "menu-button");
-    tutorialBt.innerText = "Tutorial";
-    tutorialBt.onclick = tutorial;
-    document.body.appendChild(tutorialBt);
-
-    const leaderboardBt = document.createElement("button");
-    leaderboardBt.setAttribute("class", "menu-button");
-    leaderboardBt.innerText = "Leaderboard";
-    leaderboardBt.onclick = leaderboard;
-    document.body.appendChild(leaderboardBt);
-}
-
-window.onload = function() {
-    mainMenu();
-}
+export {newGame};
