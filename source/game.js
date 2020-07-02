@@ -132,7 +132,7 @@ function newGame() {
     const loader = new THREE.TextureLoader();
     const normalMap = loader.load('./assets/pillarnormals.png');
     normalMap.wrapS = THREE.RepeatWrapping;
-    normalMap.repeat.set(15, 1); 
+    normalMap.repeat.set(18, 1); 
     
     const cilinderMat = new THREE.MeshPhongMaterial({
         color: "rgb(230, 210, 175)",
@@ -147,14 +147,86 @@ function newGame() {
 
 
 
-    const realStepMat = new THREE.MeshPhongMaterial({color: 0x000000});
+    const anisotropy = renderer.capabilities.getMaxAnisotropy();
+    function setTextureProperties(tx) {
+        tx.magFilter = THREE.LinearFilter;
+        tx.minFilter = THREE.LinearMipmapLinearFilter;
+        tx.anisotropy = anisotropy;
+        tx.wrapS = THREE.RepeatWrapping;
+        tx.wrapT = THREE.RepeatWrapping;
+      }
+
+
+    const realStepTopMat = new THREE.MeshPhongMaterial({
+        color: "rgb(230, 210, 175)",
+        map: loader.load('./assets/travertino.png'),
+        normalMap: loader.load('./assets/travertino-normal.png')
+    });
+  
+    const realStepSideMat = new THREE.MeshPhongMaterial({
+      color: "rgb(230, 210, 175)",
+      map: loader.load('./assets/travertino.png'),
+      normalMap: loader.load('./assets/travertino-normal.png')
+    });
+
+    setTextureProperties(realStepTopMat.map);
+    setTextureProperties(realStepTopMat.normalMap);
+    setTextureProperties(realStepSideMat.map);
+    setTextureProperties(realStepSideMat.normalMap);
+
+    const realStepMat = [realStepSideMat, realStepSideMat, realStepTopMat, 
+                         realStepTopMat, realStepSideMat, realStepSideMat];
+
+    
+    const movingStepTopMat = new THREE.MeshPhongMaterial({
+        map: loader.load('./assets/metal/metal1-dif-1024.png'),
+        normalMap: loader.load('./assets/metal/metal1-nor-1024.png'),
+        specularMap: loader.load('./assets/metal/metal1-spec-1024.png')
+    });
+
+    const movingStepShortSideMat = new THREE.MeshPhongMaterial({
+        map: loader.load('./assets/metal/metal1-dif-1024.png'),
+        normalMap: loader.load('./assets/metal/metal1-nor-1024.png'),
+        specularMap: loader.load('./assets/metal/metal1-spec-1024.png')
+    });
+
+    const movingStepLongSideMat = new THREE.MeshPhongMaterial({
+        map: loader.load('./assets/metal/metal1-dif-1024.png'),
+        normalMap: loader.load('./assets/metal/metal1-nor-1024.png'),
+        specularMap: loader.load('./assets/metal/metal1-spec-1024.png')
+    });
+
+    setTextureProperties(movingStepTopMat.map);
+    setTextureProperties(movingStepTopMat.normalMap);
+    setTextureProperties(movingStepTopMat.specularMap);
+    setTextureProperties(movingStepShortSideMat.map);
+    setTextureProperties(movingStepShortSideMat.normalMap);
+    setTextureProperties(movingStepShortSideMat.specularMap);
+    setTextureProperties(movingStepLongSideMat.map);
+    setTextureProperties(movingStepLongSideMat.normalMap);
+    setTextureProperties(movingStepLongSideMat.specularMap);
+
+    movingStepTopMat.map.repeat.set(2/5, 3/5);
+    movingStepTopMat.normalMap.repeat.set(2/5, 3/5);
+    movingStepTopMat.specularMap.repeat.set(2/5, 3/5);
+
+    movingStepShortSideMat.map.repeat.set(2/5, 0.5/5);
+    movingStepShortSideMat.normalMap.repeat.set(2/5, 0.5/5);
+    movingStepShortSideMat.specularMap.repeat.set(2/5, 0.5/5);
+
+    movingStepLongSideMat.map.repeat.set(3/5, 0.5/5);
+    movingStepLongSideMat.normalMap.repeat.set(3/5, 0.5/5);
+    movingStepLongSideMat.specularMap.repeat.set(3/5, 0.5/5);
+    
+    const movingStepMat = [movingStepLongSideMat, movingStepLongSideMat, movingStepTopMat, 
+                           movingStepTopMat, movingStepShortSideMat, movingStepShortSideMat];
+
     const fakeStepMat = new THREE.MeshPhongMaterial({
         color: 0xFFFFFF,
         opacity: 0.7,
         transparent: true});
     const breakableStepMat = new THREE.MeshPhongMaterial({color: 0xD2691E});
     const breakedStepMat = new THREE.MeshPhongMaterial({color: 0xA52A2A});
-    const movingStepMat = new THREE.MeshPhongMaterial({color: 0x0000FF});
     const highJumpStepMat = new THREE.MeshPhongMaterial({color: 0xDC143C});
     const fadeStepMat = new THREE.MeshPhongMaterial({
         color: 0xF8F8FF,
