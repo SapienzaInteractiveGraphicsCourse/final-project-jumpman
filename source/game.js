@@ -129,9 +129,14 @@ function newGame() {
     const radialSegments = 30;  
     const cilinderGeo = new THREE.CylinderGeometry(radius, radius, height, radialSegments);
 
+    const loader = new THREE.TextureLoader();
+    const normalMap = loader.load('./assets/pillarnormals.png');
+    normalMap.wrapS = THREE.RepeatWrapping;
+    normalMap.repeat.set(15, 1); 
+    
     const cilinderMat = new THREE.MeshPhongMaterial({
-        color: 0xFF0000,    // red (can also use a CSS color string here)
-        //flatShading: true,
+        color: "rgb(230, 210, 175)",
+        normalMap: normalMap,
     });
 
     const cylinder = new THREE.Mesh(cilinderGeo, cilinderMat);
