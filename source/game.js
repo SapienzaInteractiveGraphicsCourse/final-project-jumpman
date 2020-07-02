@@ -1,10 +1,10 @@
 import * as THREE from './three.js-r118/build/three.module.js';
-import {TWEEN} from './three.js-r118/examples/jsm/libs/tween.module.min.js';
 import Stats from './three.js-r118/examples/jsm/libs/stats.module.js';
 import {OBB} from './three.js-r118/examples/jsm/math/OBB.js';
 import {indexOfMax, randomInRange, resizeRendererToDisplaySize} from './utils.js';
 import {addToLeaderboard} from './leaderboard.js';
 import {mainMenu} from './menu.js';
+import {playerObj} from './playerCharacter.js';
 
 
 function gameOver(score) {
@@ -86,7 +86,7 @@ function newGame() {
     const near = 0.1;
     const far = 1000;
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    camera.position.set( 0, 40, 60 );
+    camera.position.set( 0, 40, 50 );
     camera.lookAt( 0, 0, 0 );
     scene.add( camera );
 
@@ -100,11 +100,11 @@ function newGame() {
         groundGeometry,
         groundMaterial,
     );
-
     
 
     groundGeometry.userData.obb = new OBB();
     groundGeometry.userData.obb.halfSize = new THREE.Vector3(50, 0.5, 30);
+    groundGeometry.userData.obb.center.y=0.5;
     ground.userData.obb = new OBB();
 
     ground.position.y = -0.5;
@@ -167,6 +167,7 @@ function newGame() {
     const stepGeo = new THREE.BoxBufferGeometry(2, 0.5, 3);
     stepGeo.userData.obb = new OBB();
     stepGeo.userData.obb.halfSize = new THREE.Vector3(1, 0.25, 1.5);
+    stepGeo.userData.obb.center.y=1;
 
     const allSteps = [];
     const realSteps = [];
@@ -335,6 +336,8 @@ function newGame() {
 
     addSteps(9);
 
+
+    /*
     //box
     const boxSize = 1;
     const geometry = new THREE.BoxBufferGeometry(boxSize, boxSize, boxSize);
@@ -365,7 +368,17 @@ function newGame() {
         .easing(TWEEN.Easing.Quadratic.In)
         .chain(freeFall)
         .start();
-    
+    */
+
+    playerObj.object3D.position.y = 15;
+    playerObj.object3D.position.z = 15;
+    playerObj.object3D.rotation.y = Math.PI/2-0.2;
+
+    playerObj.scale(1/4);
+
+    scene.add(playerObj.object3D);
+
+    playerObj.startDownAnimation();
 
     //controls
     let move = 0;
@@ -399,11 +412,14 @@ function newGame() {
     }
 
 
-    let bouncing = false;
+    //let bouncing = false;
+    let first = true;
 
     function render(time) {
         stats.begin();
         TWEEN.update(time);
+
+        playerObj.update();
 
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
@@ -412,11 +428,11 @@ function newGame() {
         }
 
 
-
+/*
         cube.updateMatrix();
         cube.updateMatrixWorld();
         cube.userData.obb.copy( cube.geometry.userData.obb );
-        cube.userData.obb.applyMatrix4( cube.matrixWorld );
+        cube.userData.obb.applyMatrix4( cube.matrixWorld );*/
 
         ground.updateMatrix();
         ground.updateMatrixWorld();
@@ -442,9 +458,11 @@ function newGame() {
 
 
         //collision
-        if (!bouncing) {
+        if (!first){
+        if (!playerObj.bouncing) {//bouncing) {
             for (let i=0; i<realSteps.length; i++) {
-                if (cube.userData.obb.intersectsOBB(realSteps[i].userData.obb)) {
+                //if (cube.userData.obb.intersectsOBB(realSteps[i].userData.obb)) {
+                if (realSteps[i].userData.obb.intersectsBox3(playerObj.boundingBox)) {
                     const step = realSteps[i];   
                     if (step.material.opacity < 0.2) break; 
                     if (step.userData.type == stepTypes.HIGH_JUMP) {
@@ -469,7 +487,7 @@ function newGame() {
                             .easing(TWEEN.Easing.Quadratic.Out)
                             .start();
 
-                        gravityFall.stop();
+                        /*gravityFall.stop();
 
                         freeFall = new TWEEN.Tween(cube.position)
                             .to({y: '-30'}, 1000)
@@ -491,7 +509,13 @@ function newGame() {
                                 bouncing = false;
                             })
                             .chain(gravityFall)
-                            .start();
+                            .start();*/
+
+                        playerObj.stopDownAmimation();
+                        const bounce = playerObj.startHighJumpAnimation();
+                        bounce.onComplete(function(){
+                            playerObj.bouncing = false;
+                        })
                         
                         break;
                     }
@@ -532,7 +556,13 @@ function newGame() {
                         }
                     }
 
-                    gravityFall.stop();
+                    playerObj.stopDownAmimation();
+                    const bounce = playerObj.startJumpAiumation();
+                    bounce.onComplete(function(){
+                        playerObj.bouncing = false;
+                    })
+                    
+                    /*gravityFall.stop();
 
                     freeFall = new TWEEN.Tween(cube.position)
                         .to({y: '-30'}, 1000)
@@ -554,22 +584,33 @@ function newGame() {
                             bouncing = false;
                         })
                         .chain(gravityFall)
-                        .start();
+                        .start();*/
                     
                     break;
                 }
             }
         }
+        }
 
         const score = Math.floor(camera.position.y-40);
         scoreDiv.innerText = "SCORE:"+score;
     
-        if (cube.userData.obb.intersectsOBB(ground.userData.obb) ||
+        /*if (cube.userData.obb.intersectsOBB(ground.userData.obb) ||
         !frustum.containsPoint(new THREE.Vector3(0, 2, 0).add(cube.position))) {
             gravityFall.stop();
             gameOver(score);
             return;
-        }
+        }*/
+
+        if (!first){
+        if (ground.userData.obb.intersectsBox3(playerObj.boundingBox) ||
+        !frustum.containsPoint(new THREE.Vector3(0, playerObj.height, 0).add(playerObj.object3D.position))) {
+            playerObj.stopDownAmimation();
+            gameOver(score);
+            return;
+        }}
+
+        first = false;
 
         //cylinder rotation
         columnGroup.rotation.y += 0.02 * move;
