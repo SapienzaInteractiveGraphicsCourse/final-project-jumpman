@@ -337,39 +337,6 @@ function newGame() {
     addSteps(9);
 
 
-    /*
-    //box
-    const boxSize = 1;
-    const geometry = new THREE.BoxBufferGeometry(boxSize, boxSize, boxSize);
-    const material = new THREE.MeshPhongMaterial({color: 0x44aa88}); // greenish blue
-
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.y = boxSize/2 + 15;
-    cube.position.z = 15;
-    scene.add(cube);
-
-    geometry.userData.obb = new OBB();
-    geometry.userData.obb.halfSize = new THREE.Vector3(boxSize/2, boxSize/2, boxSize/2);
-    cube.userData.obb = new OBB();
-   
-
-    //g = 30 m/s^2
-    //terminal velocity 30 m/s
-    //time to reach terminal velocity 1 s
-    //distance traveled until terminal velocity 15m
-
-    let freeFall = new TWEEN.Tween(cube.position)
-        .to({y: '-30'}, 1000)
-        .easing(TWEEN.Easing.Linear.None)
-        .repeat(Infinity);
-    
-    let gravityFall = new TWEEN.Tween(cube.position) 
-        .to({y: '-15'}, 1000)
-        .easing(TWEEN.Easing.Quadratic.In)
-        .chain(freeFall)
-        .start();
-    */
-
     playerObj.object3D.position.y = 15;
     playerObj.object3D.position.z = 15;
     playerObj.object3D.rotation.y = Math.PI/2-0.2;
@@ -428,12 +395,6 @@ function newGame() {
         }
 
 
-/*
-        cube.updateMatrix();
-        cube.updateMatrixWorld();
-        cube.userData.obb.copy( cube.geometry.userData.obb );
-        cube.userData.obb.applyMatrix4( cube.matrixWorld );*/
-
         ground.updateMatrix();
         ground.updateMatrixWorld();
         ground.userData.obb.copy( ground.geometry.userData.obb );
@@ -459,9 +420,8 @@ function newGame() {
 
         //collision
         if (!first){
-        if (!playerObj.bouncing) {//bouncing) {
+        if (!playerObj.bouncing) {
             for (let i=0; i<realSteps.length; i++) {
-                //if (cube.userData.obb.intersectsOBB(realSteps[i].userData.obb)) {
                 if (realSteps[i].userData.obb.intersectsBox3(playerObj.boundingBox)) {
                     const step = realSteps[i];   
                     if (step.material.opacity < 0.2) break; 
@@ -487,29 +447,6 @@ function newGame() {
                             .easing(TWEEN.Easing.Quadratic.Out)
                             .start();
 
-                        /*gravityFall.stop();
-
-                        freeFall = new TWEEN.Tween(cube.position)
-                            .to({y: '-30'}, 1000)
-                            .easing(TWEEN.Easing.Linear.None)
-                            .repeat(Infinity);
-    
-                        gravityFall = new TWEEN.Tween(cube.position) 
-                            .to({y: '-15'}, 1000)
-                            .easing(TWEEN.Easing.Quadratic.In)
-                            .chain(freeFall);
-            
-                        const bounce = new TWEEN.Tween(cube.position) 
-                            .to({y: '+44'}, 1000) 
-                            .easing(TWEEN.Easing.Quadratic.Out)
-                            .onStart(function() {
-                                bouncing = true;
-                            })
-                            .onComplete(function() {
-                                bouncing = false;
-                            })
-                            .chain(gravityFall)
-                            .start();*/
 
                         playerObj.stopDownAmimation();
                         const bounce = playerObj.startHighJumpAnimation();
@@ -561,30 +498,7 @@ function newGame() {
                     bounce.onComplete(function(){
                         playerObj.bouncing = false;
                     })
-                    
-                    /*gravityFall.stop();
-
-                    freeFall = new TWEEN.Tween(cube.position)
-                        .to({y: '-30'}, 1000)
-                        .easing(TWEEN.Easing.Linear.None)
-                        .repeat(Infinity);
-
-                    gravityFall = new TWEEN.Tween(cube.position) 
-                        .to({y: '-15'}, 1000)
-                        .easing(TWEEN.Easing.Quadratic.In)
-                        .chain(freeFall);
-        
-                    const bounce = new TWEEN.Tween(cube.position) 
-                        .to({y: '+14'}, 1000) 
-                        .easing(TWEEN.Easing.Quadratic.Out)
-                        .onStart(function() {
-                            bouncing = true;
-                        })
-                        .onComplete(function() {
-                            bouncing = false;
-                        })
-                        .chain(gravityFall)
-                        .start();*/
+                
                     
                     break;
                 }
@@ -595,12 +509,6 @@ function newGame() {
         const score = Math.floor(camera.position.y-40);
         scoreDiv.innerText = "SCORE:"+score;
     
-        /*if (cube.userData.obb.intersectsOBB(ground.userData.obb) ||
-        !frustum.containsPoint(new THREE.Vector3(0, 2, 0).add(cube.position))) {
-            gravityFall.stop();
-            gameOver(score);
-            return;
-        }*/
 
         if (!first){
         if (ground.userData.obb.intersectsBox3(playerObj.boundingBox) ||
