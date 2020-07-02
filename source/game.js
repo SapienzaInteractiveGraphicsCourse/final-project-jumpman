@@ -1,6 +1,8 @@
-import * as THREE from './js/three.module.js';
-import {OBB} from './js/OBB.js';
-import {indexOfMax, randomInRange, resizeRendererToDisplaySize} from './js/utils.js';
+import * as THREE from './three.js-r118/build/three.module.js';
+import {TWEEN} from './three.js-r118/examples/jsm/libs/tween.module.min.js';
+import Stats from './three.js-r118/examples/jsm/libs/stats.module.js';
+import {OBB} from './three.js-r118/examples/jsm/math/OBB.js';
+import {indexOfMax, randomInRange, resizeRendererToDisplaySize} from './utils.js';
 import {addToLeaderboard} from './leaderboard.js';
 import {mainMenu} from './menu.js';
 

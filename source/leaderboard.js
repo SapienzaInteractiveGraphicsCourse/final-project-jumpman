@@ -1,4 +1,4 @@
-import {setCookie, getCookie} from './js/utils.js';
+import {setCookie, getCookie} from './utils.js';
 import {mainMenu} from './menu.js';
 
 function getLeaderboard() {
