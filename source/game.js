@@ -306,8 +306,8 @@ function newGame() {
     
     
     const fadeStepMat = new THREE.MeshPhongMaterial({
-        color: 0xF8F8FF,
         opacity: 1,
+        emissive: 'white',
         transparent: true});
 
     const fade = new TWEEN.Tween(fadeStepMat) 
