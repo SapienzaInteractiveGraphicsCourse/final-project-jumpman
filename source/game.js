@@ -78,7 +78,8 @@ function newGame() {
     
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0x00BFFF );
+    const backgroundColor = 0x00BFFF;
+    scene.background = new THREE.Color(backgroundColor);
 
     //camera
     const fov = 35;
@@ -104,7 +105,7 @@ function newGame() {
     }
 
     //fog
-    scene.fog = new THREE.Fog(0x00BFFF, 70, 90);
+    scene.fog = new THREE.Fog(backgroundColor, 70, 90);
 
     //ground
     const groundMaterial = new THREE.MeshBasicMaterial({
@@ -133,6 +134,31 @@ function newGame() {
 
     scene.add( clouds );
 
+
+    //stars
+    var starVertices = [];
+
+    for ( var i = 0; i < 10000; i ++ ) {
+        var x = THREE.MathUtils.randFloatSpread( 1000 );
+        var y = THREE.MathUtils.randFloatSpread( 1000 );
+        var z = THREE.MathUtils.randFloat( -1000, -100 );
+        starVertices.push( x, y, z );
+    }
+
+    //scene.background = new THREE.Color(0,0,1);
+    var starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute( 'position', new THREE.Float32BufferAttribute( starVertices, 3 ) );
+    var starMat = new THREE.PointsMaterial( { 
+        opacity: 0, 
+        size:10, 
+        transparent: true, 
+        map: loader.load( './assets/star.png' ),
+        fog: false
+    } );
+    setTextureProperties(starMat.map);
+    var stars = new THREE.Points( starGeo, starMat );
+    scene.add( stars );
+
     const groundGeometry = new THREE.BoxBufferGeometry(100, 1, 60);
     const ground = new THREE.Mesh(
         groundGeometry,
@@ -150,10 +176,14 @@ function newGame() {
     scene.add(ground);
 
 
-    //light
+    //lights
+    const skyColor = 0xB1E1FF; 
+    const groundColor = 0x999966; 
+    const ambientLight = new THREE.HemisphereLight(skyColor, groundColor, 0.4);
+    scene.add(ambientLight);
+
     const color = 0xFFFFFF;
-    const intensity = 1;
-    const light = new THREE.DirectionalLight(color, intensity);
+    const light = new THREE.DirectionalLight(color, 0.8);
     light.position.set(0, 4, 7);
     scene.add(light);
 
@@ -584,6 +614,33 @@ function newGame() {
     function render(time) {
         stats.begin();
         TWEEN.update(time);
+
+
+        if (camera.position.y>500) {
+            const color = new THREE.Color(backgroundColor).lerp(new THREE.Color(0 ,0, 0), (camera.position.y-500)/500);
+            const color1 = new THREE.Color(skyColor).lerp(new THREE.Color(0 ,0, 0), (camera.position.y-500)/500);
+            const color2 = new THREE.Color(groundColor).lerp(new THREE.Color(0 ,0, 0), (camera.position.y-500)/500);
+            
+            if (color.r<0) color.r = 0;
+            if (color.g<0) color.g = 0;
+            if (color.b<0) color.b = 0;
+            if (color1.r<0) color1.r = 0;
+            if (color1.g<0) color1.g = 0;
+            if (color1.b<0) color1.b = 0;
+            if (color2.r<0) color2.r = 0;
+            if (color2.g<0) color2.g = 0;
+            if (color2.b<0) color2.b = 0;
+
+            scene.background = color;
+            scene.fog.color = color;
+            ambientLight.color = color1;
+            ambientLight.groundColor = color2;
+        } 
+        
+        if (camera.position.y>700 && camera.position.y<800) {
+            starMat.opacity = (camera.position.y-700)/100;
+        }
+        
 
         clouds.lookAt(camera.position);
         playerObj.update();
