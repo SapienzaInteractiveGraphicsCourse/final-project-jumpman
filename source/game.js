@@ -262,6 +262,41 @@ function newGame() {
                               breakedStepTopMat, breakedStepSideMat, breakedStepSideMat];
 
 
+    const highJumpStepMat = new THREE.MeshPhongMaterial({
+        color: 0xDC143C,
+        shininess: 150
+    });
+
+    const highJumpStepGeo = new THREE.BoxBufferGeometry(2, 0.25, 1.8);
+    highJumpStepGeo.userData.obb = new OBB();
+    highJumpStepGeo.userData.obb.halfSize = new THREE.Vector3(1, 0.125, 1.5);
+    highJumpStepGeo.userData.obb.center.y=0.5;
+
+    class SpringCurve extends THREE.Curve {
+        constructor(height, radius, levels) {
+            super();
+            this.height = height;
+            this.radius = radius;
+            this.levels = levels;
+        }
+        getPoint(t) {
+            const tx = Math.sin(t*this.levels*Math.PI*2);
+            const tz = Math.cos(t*this.levels*Math.PI*2);
+            return new THREE.Vector3(tx, t*this.height/this.radius, tz).multiplyScalar(this.radius);
+        }
+    }
+          
+    const path = new SpringCurve(1, 0.7, 3);      
+    const tubularSegments = 50;  
+    const tubeRadius = 0.08;  
+    const tubeRadialSegments = 20;
+    const closed = false;  
+    const springGeo = new THREE.TubeBufferGeometry(path, tubularSegments, tubeRadius, tubeRadialSegments, closed);
+
+    const springMat = new THREE.MeshPhongMaterial({
+        color: 0x778899, 
+        shininess: 150
+    });
 
 
     const fakeStepMat = new THREE.MeshPhongMaterial({
@@ -269,31 +304,24 @@ function newGame() {
         opacity: 0.7,
         transparent: true});
     
-    const highJumpStepMat = new THREE.MeshPhongMaterial({color: 0xDC143C});
+    
     const fadeStepMat = new THREE.MeshPhongMaterial({
         color: 0xF8F8FF,
         opacity: 1,
         transparent: true});
 
     const fade = new TWEEN.Tween(fadeStepMat) 
-    .to({opacity: 0}, 2000)
-    .easing(TWEEN.Easing.Exponential.InOut)
-    .yoyo(true)
-    .repeat(Infinity)
-    .start();
+        .to({opacity: 0}, 2000)
+        .easing(TWEEN.Easing.Exponential.InOut)
+        .yoyo(true)
+        .repeat(Infinity)
+        .start();
 
 
     const stepGeo = new THREE.BoxBufferGeometry(2, 0.5, 1.8);
     stepGeo.userData.obb = new OBB();
     stepGeo.userData.obb.halfSize = new THREE.Vector3(1, 0.25, 1.5);
     stepGeo.userData.obb.center.y=1;
-
-
-   /* const testMat = new THREE.Mesh(stepGeo, breakedStepMat);
-    testMat.position.z = 25;
-    testMat.position.y = 20;
-    columnGroup.add(testMat);*/
-
 
 
     const allSteps = [];
@@ -398,10 +426,23 @@ function newGame() {
 
                     break;
                 case stepTypes.HIGH_JUMP:
-                    step = new THREE.Mesh(stepGeo, highJumpStepMat);
-                    step.userData.obb = new OBB();
-                    step.userData.id = realStepsCount;
+                    const stepTop = new THREE.Mesh(highJumpStepGeo, highJumpStepMat);
+                    const stepBottom = new THREE.Mesh(highJumpStepGeo, highJumpStepMat);
+                    const spring = new THREE.Mesh(springGeo, springMat);
+
+                    stepBottom.userData.obb = new OBB();
+                    stepBottom.userData.id = realStepsCount;
                     realStepsCount++;
+
+                    stepTop.name = "stepTop";
+                    spring.name = "spring";
+
+                    stepBottom.add(spring);
+                    stepTop.position.y = spring.geometry.parameters.path.height;
+                    spring.add(stepTop);
+
+                    step = stepBottom;
+
                     realSteps.push(step);
 
                     break;
@@ -419,7 +460,7 @@ function newGame() {
             step.name = allStepsCount;
     
             step.position.z = radius+(stepGeo.parameters.depth)/2-0.1;
-            step.position.y = position;
+            step.position.y += position;
 
 
             if (stepType == stepTypes.MOVING) {
@@ -434,6 +475,7 @@ function newGame() {
             const pivot = new THREE.Object3D();
             pivot.add(step);
             pivot.rotation.y = rotation;
+
             
             columnGroup.add(pivot);    
 
@@ -528,10 +570,18 @@ function newGame() {
         ground.userData.obb.applyMatrix4( ground.matrixWorld );
 
         for (let i=0; i<realSteps.length; i++) {
-            realSteps[i].updateMatrix();
-            realSteps[i].updateMatrixWorld();
-            realSteps[i].userData.obb.copy( realSteps[i].geometry.userData.obb );
-            realSteps[i].userData.obb.applyMatrix4( realSteps[i].matrixWorld );
+            if(realSteps[i].userData.type == stepTypes.HIGH_JUMP) {
+                const stepTop = realSteps[i].getObjectByName("stepTop");
+                stepTop.updateMatrix();
+                stepTop.updateMatrixWorld();
+                realSteps[i].userData.obb.copy( stepTop.geometry.userData.obb );
+                realSteps[i].userData.obb.applyMatrix4( stepTop.matrixWorld );
+            } else {
+                realSteps[i].updateMatrix();
+                realSteps[i].updateMatrixWorld();
+                realSteps[i].userData.obb.copy( realSteps[i].geometry.userData.obb );
+                realSteps[i].userData.obb.applyMatrix4( realSteps[i].matrixWorld );
+            }
         }
 
 
@@ -574,6 +624,20 @@ function newGame() {
                             .easing(TWEEN.Easing.Quadratic.Out)
                             .start();
 
+                        const spring = step.getObjectByName("spring");
+                        spring.scale.y = 0.6;
+
+                        const expand = new TWEEN.Tween(spring.scale) 
+                            .to({y: [4, 1]}, 200)
+                            .easing(TWEEN.Easing.Quadratic.InOut)
+
+                        const contract = new TWEEN.Tween(spring.scale) 
+                            .to({y: 0.2}, 100)
+                            .easing(TWEEN.Easing.Quadratic.InOut)
+                            .chain(expand)
+                            .start();
+                        
+                        
 
                         playerObj.stopDownAmimation();
                         const bounce = playerObj.startHighJumpAnimation();
