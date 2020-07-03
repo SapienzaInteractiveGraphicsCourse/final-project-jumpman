@@ -154,7 +154,7 @@ function newGame() {
         tx.anisotropy = anisotropy;
         tx.wrapS = THREE.RepeatWrapping;
         tx.wrapT = THREE.RepeatWrapping;
-      }
+    }
 
 
     const realStepTopMat = new THREE.MeshPhongMaterial({
@@ -184,13 +184,13 @@ function newGame() {
         specularMap: loader.load('./assets/metal/metal1-spec-1024.png')
     });
 
-    const movingStepShortSideMat = new THREE.MeshPhongMaterial({
+    const movingStepLongSideMat = new THREE.MeshPhongMaterial({
         map: loader.load('./assets/metal/metal1-dif-1024.png'),
         normalMap: loader.load('./assets/metal/metal1-nor-1024.png'),
         specularMap: loader.load('./assets/metal/metal1-spec-1024.png')
     });
 
-    const movingStepLongSideMat = new THREE.MeshPhongMaterial({
+    const movingStepShortSideMat = new THREE.MeshPhongMaterial({
         map: loader.load('./assets/metal/metal1-dif-1024.png'),
         normalMap: loader.load('./assets/metal/metal1-nor-1024.png'),
         specularMap: loader.load('./assets/metal/metal1-spec-1024.png')
@@ -199,34 +199,76 @@ function newGame() {
     setTextureProperties(movingStepTopMat.map);
     setTextureProperties(movingStepTopMat.normalMap);
     setTextureProperties(movingStepTopMat.specularMap);
-    setTextureProperties(movingStepShortSideMat.map);
-    setTextureProperties(movingStepShortSideMat.normalMap);
-    setTextureProperties(movingStepShortSideMat.specularMap);
     setTextureProperties(movingStepLongSideMat.map);
     setTextureProperties(movingStepLongSideMat.normalMap);
     setTextureProperties(movingStepLongSideMat.specularMap);
+    setTextureProperties(movingStepShortSideMat.map);
+    setTextureProperties(movingStepShortSideMat.normalMap);
+    setTextureProperties(movingStepShortSideMat.specularMap);
 
-    movingStepTopMat.map.repeat.set(2/5, 3/5);
-    movingStepTopMat.normalMap.repeat.set(2/5, 3/5);
-    movingStepTopMat.specularMap.repeat.set(2/5, 3/5);
+    movingStepTopMat.map.repeat.set(2/5, 1.8/5);
+    movingStepTopMat.normalMap.repeat.set(2/5, 1.8/5);
+    movingStepTopMat.specularMap.repeat.set(2/5, 1.8/5);
 
-    movingStepShortSideMat.map.repeat.set(2/5, 0.5/5);
-    movingStepShortSideMat.normalMap.repeat.set(2/5, 0.5/5);
-    movingStepShortSideMat.specularMap.repeat.set(2/5, 0.5/5);
+    movingStepLongSideMat.map.repeat.set(2/5, 0.5/5);
+    movingStepLongSideMat.normalMap.repeat.set(2/5, 0.5/5);
+    movingStepLongSideMat.specularMap.repeat.set(2/5, 0.5/5);
 
-    movingStepLongSideMat.map.repeat.set(3/5, 0.5/5);
-    movingStepLongSideMat.normalMap.repeat.set(3/5, 0.5/5);
-    movingStepLongSideMat.specularMap.repeat.set(3/5, 0.5/5);
+    movingStepShortSideMat.map.repeat.set(1.8/5, 0.5/5);
+    movingStepShortSideMat.normalMap.repeat.set(1.8/5, 0.5/5);
+    movingStepShortSideMat.specularMap.repeat.set(1.8/5, 0.5/5);
     
-    const movingStepMat = [movingStepLongSideMat, movingStepLongSideMat, movingStepTopMat, 
-                           movingStepTopMat, movingStepShortSideMat, movingStepShortSideMat];
+    const movingStepMat = [movingStepShortSideMat, movingStepShortSideMat, movingStepTopMat, 
+                           movingStepTopMat, movingStepLongSideMat, movingStepLongSideMat];
+
+    
+    const breakableStepTopMat = new THREE.MeshPhongMaterial({
+        map: loader.load('./assets/breakable_step/top.png'),
+        shininess: 5
+    });
+  
+    const breakableStepSideMat = new THREE.MeshPhongMaterial({
+      map: loader.load('./assets/breakable_step/side.png'),
+      shininess: 5
+    });
+
+    setTextureProperties(breakableStepTopMat.map);
+    setTextureProperties(breakableStepSideMat.map);
+
+    const breakableStepMat = [breakableStepSideMat, breakableStepSideMat, breakableStepTopMat, 
+                              breakableStepTopMat, breakableStepSideMat, breakableStepSideMat];
+
+    
+
+
+    const breakedStepTopMat = new THREE.MeshPhongMaterial({
+        map: loader.load('./assets/breakable_step/crack_top.png'),
+        normalMap: loader.load('./assets/breakable_step/crack_top_normal.png'),
+        shininess: 5
+    });
+  
+    const breakedStepSideMat = new THREE.MeshPhongMaterial({
+      map: loader.load('./assets/breakable_step/crack_side.png'),
+      normalMap: loader.load('./assets/breakable_step/crack_side_normal.png'),
+      shininess: 5
+    });
+
+    setTextureProperties(breakedStepTopMat.map);
+    setTextureProperties(breakedStepSideMat.map);
+    setTextureProperties(breakedStepTopMat.normalMap);
+    setTextureProperties(breakedStepSideMat.normalMap);
+
+    const breakedStepMat = [breakableStepSideMat, breakableStepSideMat, breakedStepTopMat, 
+                              breakedStepTopMat, breakedStepSideMat, breakedStepSideMat];
+
+
+
 
     const fakeStepMat = new THREE.MeshPhongMaterial({
         color: 0xFFFFFF,
         opacity: 0.7,
         transparent: true});
-    const breakableStepMat = new THREE.MeshPhongMaterial({color: 0xD2691E});
-    const breakedStepMat = new THREE.MeshPhongMaterial({color: 0xA52A2A});
+    
     const highJumpStepMat = new THREE.MeshPhongMaterial({color: 0xDC143C});
     const fadeStepMat = new THREE.MeshPhongMaterial({
         color: 0xF8F8FF,
@@ -241,10 +283,18 @@ function newGame() {
     .start();
 
 
-    const stepGeo = new THREE.BoxBufferGeometry(2, 0.5, 3);
+    const stepGeo = new THREE.BoxBufferGeometry(2, 0.5, 1.8);
     stepGeo.userData.obb = new OBB();
     stepGeo.userData.obb.halfSize = new THREE.Vector3(1, 0.25, 1.5);
     stepGeo.userData.obb.center.y=1;
+
+
+   /* const testMat = new THREE.Mesh(stepGeo, breakedStepMat);
+    testMat.position.z = 25;
+    testMat.position.y = 20;
+    columnGroup.add(testMat);*/
+
+
 
     const allSteps = [];
     const realSteps = [];
@@ -368,7 +418,7 @@ function newGame() {
             step.userData.type = stepType;
             step.name = allStepsCount;
     
-            step.position.z = radius;
+            step.position.z = radius+(stepGeo.parameters.depth)/2-0.1;
             step.position.y = position;
 
 
@@ -561,11 +611,76 @@ function newGame() {
                             step.userData.status = 'breaked';
                             step.material = breakedStepMat;
                         } else {
-                            const fall = new TWEEN.Tween(step.position)
-                                .to({y: '-30'}, 700)
+                            const leftPts = [
+                                new THREE.Vector2(-1,-0.9),
+                                new THREE.Vector2(-1,0.9),
+                                new THREE.Vector2(0,0.9),
+                                new THREE.Vector2(-0.3,0.675),
+                                new THREE.Vector2(0,0.45),
+                                new THREE.Vector2(-0.3,0.225),
+                                new THREE.Vector2(0,0),
+                                new THREE.Vector2(-0.3,-0.225),
+                                new THREE.Vector2(0,-0.45),
+                                new THREE.Vector2(-0.3,-0.675),
+                                new THREE.Vector2(0,-0.9)
+                              ];
+                            
+                              const rightPts = [
+                                new THREE.Vector2(1,-0.9),
+                                new THREE.Vector2(1,0.9),
+                                new THREE.Vector2(0,0.9),
+                                new THREE.Vector2(-0.3,0.675),
+                                new THREE.Vector2(0,0.45),
+                                new THREE.Vector2(-0.3,0.225),
+                                new THREE.Vector2(0,0),
+                                new THREE.Vector2(-0.3,-0.225),
+                                new THREE.Vector2(0,-0.45),
+                                new THREE.Vector2(-0.3,-0.675),
+                                new THREE.Vector2(0,-0.9)
+                              ];
+                            
+                            
+                            var leftShape = new THREE.Shape(leftPts);
+                            var rightShape = new THREE.Shape(rightPts);
+                            
+                            const extrudeSettings = {
+                              steps:   1,  
+                              depth:  0.5,  
+                              bevelEnabled: false,  
+                            };
+                            const leftGeo = new THREE.ExtrudeBufferGeometry( leftShape, extrudeSettings );
+                            const leftMesh = new THREE.Mesh( leftGeo, breakableStepTopMat );
+                            leftMesh.rotation.x = Math.PI/2;
+                            leftMesh.position.y = 0.25;
+                            
+                            const rightGeo = new THREE.ExtrudeBufferGeometry( rightShape, extrudeSettings );
+                            const rightMesh = new THREE.Mesh( rightGeo, breakableStepTopMat );
+                            rightMesh.rotation.x = Math.PI/2;
+                            rightMesh.position.y = 0.25;
+                            
+                            const brokenStep = new THREE.Object3D();
+                            brokenStep.add(leftMesh);
+                            brokenStep.add(rightMesh);
+                            brokenStep.position.y = step.position.y;
+                            brokenStep.position.z = step.position.z;
+
+                            const pivot = step.parent;
+                            pivot.remove(step);
+                            pivot.add(brokenStep);
+
+                            const fallLeft = new TWEEN.Tween(leftMesh.position)
+                                .to({y: '-30', x:'-5'}, 700)
                                 .easing(TWEEN.Easing.Linear.None)
                                 .repeat(Infinity)
                                 .start();
+
+                            const fallRight = new TWEEN.Tween(rightMesh.position)
+                                .to({y: '-30', x:'+5'}, 700)
+                                .easing(TWEEN.Easing.Linear.None)
+                                .repeat(Infinity)
+                                .start();
+                    
+                            
                             break;
                         }
                     }
