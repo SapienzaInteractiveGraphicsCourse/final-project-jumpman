@@ -108,10 +108,30 @@ function newGame() {
 
     //ground
     const groundMaterial = new THREE.MeshBasicMaterial({
-        map: loader.load('./assets/Ground_01.png'),
+        map: loader.load('./assets/Ground_01.png')
     });
     setTextureProperties(groundMaterial.map);
     groundMaterial.map.repeat.set(10, 6);
+
+    //clouds
+    var cloudGeo = new THREE.PlaneGeometry( 16, 9, 1 );
+    var cloudMaterial = new THREE.MeshBasicMaterial( {
+        map: loader.load('./assets/cloud.png'),
+        opacity: 0.8,
+        fog: false,
+        transparent: true
+    });
+
+    setTextureProperties(cloudMaterial.map);
+    var clouds = new THREE.Mesh( cloudGeo, cloudMaterial );
+
+    clouds.scale.set(10, 10, 10);
+
+    clouds.position.z = -100;
+    clouds.position.y = 200;
+
+
+    scene.add( clouds );
 
     const groundGeometry = new THREE.BoxBufferGeometry(100, 1, 60);
     const ground = new THREE.Mesh(
@@ -565,6 +585,7 @@ function newGame() {
         stats.begin();
         TWEEN.update(time);
 
+        clouds.lookAt(camera.position);
         playerObj.update();
 
         if (resizeRendererToDisplaySize(renderer)) {
