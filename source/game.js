@@ -115,7 +115,7 @@ function newGame() {
     groundMaterial.map.repeat.set(10, 6);
 
     //clouds
-    var cloudGeo = new THREE.PlaneGeometry( 16, 9, 1 );
+    var cloudGeo = new THREE.PlaneGeometry( 2, 1, 1 );
     var cloudMaterial = new THREE.MeshBasicMaterial( {
         map: loader.load('./assets/cloud.png'),
         opacity: 0.8,
@@ -126,7 +126,7 @@ function newGame() {
     setTextureProperties(cloudMaterial.map);
     var clouds = new THREE.Mesh( cloudGeo, cloudMaterial );
 
-    clouds.scale.set(10, 10, 10);
+    clouds.scale.set(80, 80, 80);
 
     clouds.position.z = -100;
     clouds.position.y = 200;
