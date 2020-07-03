@@ -85,7 +85,7 @@ function newGame() {
     const fov = 35;
     const aspect = 2;  // the canvas default
     const near = 0.1;
-    const far = 1000;
+    const far = 10000;
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     camera.position.set( 0, 40, 50 );
     camera.lookAt( 0, 0, 0 );
@@ -141,7 +141,7 @@ function newGame() {
     for ( var i = 0; i < 10000; i ++ ) {
         var x = THREE.MathUtils.randFloatSpread( 1000 );
         var y = THREE.MathUtils.randFloatSpread( 1000 );
-        var z = THREE.MathUtils.randFloat( -1000, -100 );
+        var z = THREE.MathUtils.randFloat( -5000, -500 );
         starVertices.push( x, y, z );
     }
 
@@ -150,7 +150,7 @@ function newGame() {
     starGeo.setAttribute( 'position', new THREE.Float32BufferAttribute( starVertices, 3 ) );
     var starMat = new THREE.PointsMaterial( { 
         opacity: 0, 
-        size:10, 
+        size:20, 
         transparent: true, 
         map: loader.load( './assets/star.png' ),
         fog: false
@@ -608,8 +608,7 @@ function newGame() {
     }
 
 
-    //let bouncing = false;
-    let first = true;
+     let first = true;
 
     function render(time) {
         stats.begin();
@@ -640,6 +639,8 @@ function newGame() {
         if (camera.position.y>700 && camera.position.y<800) {
             starMat.opacity = (camera.position.y-700)/100;
         }
+
+        stars.position.y = camera.position.y/1.1-400;
         
 
         clouds.lookAt(camera.position);
