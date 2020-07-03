@@ -93,8 +93,26 @@ function newGame() {
     const frustum = new THREE.Frustum();
 
 
+    const loader = new THREE.TextureLoader();
+    const anisotropy = renderer.capabilities.getMaxAnisotropy();
+    function setTextureProperties(tx) {
+        tx.magFilter = THREE.LinearFilter;
+        tx.minFilter = THREE.LinearMipmapLinearFilter;
+        tx.anisotropy = anisotropy;
+        tx.wrapS = THREE.RepeatWrapping;
+        tx.wrapT = THREE.RepeatWrapping;
+    }
+
+    //fog
+    scene.fog = new THREE.Fog(0x00BFFF, 70, 90);
+
     //ground
-    const groundMaterial = new THREE.MeshBasicMaterial({color: 'grey'});
+    const groundMaterial = new THREE.MeshBasicMaterial({
+        map: loader.load('./assets/Ground_01.png'),
+    });
+    setTextureProperties(groundMaterial.map);
+    groundMaterial.map.repeat.set(10, 6);
+
     const groundGeometry = new THREE.BoxBufferGeometry(100, 1, 60);
     const ground = new THREE.Mesh(
         groundGeometry,
@@ -116,7 +134,7 @@ function newGame() {
     const color = 0xFFFFFF;
     const intensity = 1;
     const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(-1, 2, 4);
+    light.position.set(0, 4, 7);
     scene.add(light);
 
 
@@ -129,7 +147,7 @@ function newGame() {
     const radialSegments = 30;  
     const cilinderGeo = new THREE.CylinderGeometry(radius, radius, height, radialSegments);
 
-    const loader = new THREE.TextureLoader();
+    
     const normalMap = loader.load('./assets/pillarnormals.png');
     normalMap.wrapS = THREE.RepeatWrapping;
     normalMap.repeat.set(18, 1); 
@@ -139,22 +157,14 @@ function newGame() {
         normalMap: normalMap,
     });
 
+    setTextureProperties(cilinderMat.normalMap);
+
     const cylinder = new THREE.Mesh(cilinderGeo, cilinderMat);
     cylinder.position.y = height/2;
 
     scene.add(columnGroup);
     columnGroup.add(cylinder);
 
-
-
-    const anisotropy = renderer.capabilities.getMaxAnisotropy();
-    function setTextureProperties(tx) {
-        tx.magFilter = THREE.LinearFilter;
-        tx.minFilter = THREE.LinearMipmapLinearFilter;
-        tx.anisotropy = anisotropy;
-        tx.wrapS = THREE.RepeatWrapping;
-        tx.wrapT = THREE.RepeatWrapping;
-    }
 
 
     const realStepTopMat = new THREE.MeshPhongMaterial({
