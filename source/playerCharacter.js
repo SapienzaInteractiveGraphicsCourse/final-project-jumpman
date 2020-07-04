@@ -196,8 +196,24 @@ const t4 = new TWEEN.Tween([upperLeftArmPivot.rotation,
        {x: 0.8}, {x: 0}, {x: 0}, {x: 0}], 400)
   .easing(TWEEN.Easing.Quadratic.Out);
 
+
+//jump to long
+const t5 = new TWEEN.Tween([upperLeftArmPivot.rotation, 
+                            upperRightArmPivot.rotation,
+                            upperLeftLegPivot.rotation,
+                            lowerLeftLegPivot.rotation,
+                            upperRightLegPivot.rotation,
+                            lowerRightLegPivot.rotation,
+                            leftFootPivot.rotation,
+                            rightFootPivot.rotation])
+  .to([{x: Math.PI, z: Math.PI/2}, {x: 0, z: Math.PI/2}, {x: 0}, {x: 0}, 
+  {x: 0}, {x: 0}, {x: 0}, {x: 0}], 600)
+  .easing(TWEEN.Easing.Quadratic.In)
+  .delay(600);
+
 t2.chain(t3);
 t3.chain(t4);
+t4.chain(t5);
 
 let bodyBBox = new THREE.Box3();
 bodyBBox.setFromObject(body);
@@ -229,12 +245,13 @@ const playerObj = {
         gravityFall = new TWEEN.Tween(playerCharcter.position) 
             .to({y: '-15'}, 1000)
             .easing(TWEEN.Easing.Quadratic.In)
-            .onStart(function(){t1.start()})
+            //.onStart(function(){t1.start()})
             .chain(freeFall);
 
         return gravityFall;
     },
     startDownAnimation: function() {
+        t1.start();
         this.downAnimation().start();
     }, 
     stopDownAmimation: function() {

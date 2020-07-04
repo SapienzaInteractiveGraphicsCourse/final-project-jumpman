@@ -608,7 +608,7 @@ function newGame() {
     }
 
 
-     let first = true;
+    let first = true;
 
     function render(time) {
         stats.begin();
