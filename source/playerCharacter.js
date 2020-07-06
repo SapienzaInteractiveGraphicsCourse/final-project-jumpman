@@ -296,8 +296,6 @@ function init(scene) {
     boundingBox = new THREE.Box3();
     boundingBox.setFromObject(playerCharcter);
 
-    startFallAnimation();
-
     topPosition = torsoBBox.max.y+1;
 
     scene.add(playerCharcter); 
@@ -311,4 +309,4 @@ function update() {
     topPosition = new THREE.Vector3(playerCharcter.position.x, torsoBBox.max.y, playerCharcter.position.z);
 }
 
-export {init, update, boundingBox, startJumpAnimation, bouncing, stopFallAnimation, topPosition};
+export {init, update, boundingBox, startJumpAnimation, startFallAnimation, bouncing, stopFallAnimation, topPosition};

@@ -310,7 +310,7 @@ function start() {
     camera.init(scene);
     ground.init(scene);
     lights.init(scene);
-    column.init(scene);
+    column.init(scene, renderer);
     column.addSteps(9);
     playerCharacter.init(scene);
     clouds.init(scene);
@@ -319,6 +319,9 @@ function start() {
 
     let lastRealStep = 0;
     let lastStep = 0;
+
+    renderer.render(scene, camera.obj);
+    playerCharacter.startFallAnimation();
 
     function render(time) {
         stats.begin();
@@ -332,7 +335,6 @@ function start() {
             camera.obj.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.obj.updateProjectionMatrix();
         }
-
 
         camera.update();
         frustum.update();
