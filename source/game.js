@@ -322,7 +322,6 @@ function start() {
 
     function render(time) {
         stats.begin();
-        //time/=4;
         TWEEN.update(time);
 
         const score = Math.floor(camera.obj.position.y-40);
@@ -421,7 +420,6 @@ function start() {
 
 function newGame() {
     if(Loader.loaded){
-        console.log("a");
         start();
     } else {
         Loader.onLoad = start;
