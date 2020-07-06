@@ -5,11 +5,12 @@ import {MtlObjBridge} from './three.js-r118/examples/jsm/loaders/obj2/bridge/Mtl
 
 const manager = new THREE.LoadingManager();
 const textureLoader = new THREE.TextureLoader(manager);
+const renderer = new THREE.WebGLRenderer();
 
-function setTextureProperties(tx, anisotropy) {
+function setTextureProperties(tx) {
     tx.magFilter = THREE.LinearFilter;
     tx.minFilter = THREE.LinearMipmapLinearFilter;
-    tx.anisotropy = anisotropy;
+    tx.anisotropy = renderer.capabilities.getMaxAnisotropy();
     tx.wrapS = THREE.RepeatWrapping;
     tx.wrapT = THREE.RepeatWrapping;
 }

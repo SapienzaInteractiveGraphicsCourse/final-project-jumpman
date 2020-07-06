@@ -32,6 +32,11 @@ h {
 html, body {
    margin: 0;
    height: 100%;
+   user-select: none;
+   -moz-user-select: none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -o-user-select: none;
 }
 #c {
    width: 100%;
@@ -45,6 +50,16 @@ html, body {
     padding: 10px;
     color : white;
     font-family: Verdana, Geneva, sans-serif;
+    font-size: 3vh;
+
+}
+#pause {
+    position: absolute;
+    left: 0px;
+    top: 0;
+    padding: 10px;
+    color : white;
+    font-family: sans-serif;
     font-size: 3vh;
 
 }

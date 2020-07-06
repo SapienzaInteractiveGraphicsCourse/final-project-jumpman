@@ -5,12 +5,15 @@ import {indexOfMax, randomInRange} from './utils.js';
 
 
 
-const allSteps = [];
-const realSteps = [];
-let allStepsCount = 0;
-let realStepsCount = 0;
+let allSteps;
+let realSteps;
+let allStepsCount;
+let realStepsCount;
 
-const columnGroup = new THREE.Object3D();
+let rotation;
+let position;
+
+let columnGroup;
 let column;
 
 const materials = {};
@@ -34,13 +37,17 @@ const stepTypes = {
 
 
 const stepTypeGenerator = {
-    count: 1,
-    prev: 0,
-    next: function() {
-        this.next = this._next;
-        return 0;
+    count: null,
+    prev: null,
+    init: function() {
+        this.count = 0;
+        this.prev = 0;
     },
-    _next: function() {
+    next: function() {
+        if (this.count == 0) {
+            this.count++;
+            return this.prev;
+        }
         const prob = [];
         if (this.count<60) {
             for(let i=0; i<=5; i++){
@@ -301,6 +308,15 @@ function preload(scene) {
 }
 
 function init(scene) {
+    allSteps = [];
+    realSteps = [];
+    allStepsCount = 0;
+    realStepsCount = 0;
+
+    rotation = 0;
+    position = 1;
+    columnGroup = new THREE.Object3D();
+
     columnGroup.position.z = 10;
 
     const radialSegments = 30;  
@@ -321,14 +337,13 @@ function init(scene) {
 
     preload(scene);
 
+    stepTypeGenerator.init();
+
 
     columnGroup.add(column);
     scene.add(columnGroup);  
 }
 
-
-let rotation = 0;
-let position = 1;
 
 function addSteps(num) {
     const l = allStepsCount+num;

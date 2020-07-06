@@ -8,9 +8,6 @@ import {addToLeaderboard} from './leaderboard.js';
 import {mainMenu} from './menu.js';
 
 
-
-let scene, renderer, canvas; 
-
 function gameOver(score) {
     const gameOverDiv = document.createElement("div");
     gameOverDiv.setAttribute("id", "game-over");
@@ -39,11 +36,11 @@ function gameOver(score) {
 
 const backgroundAndFog = {
     color: 0x00BFFF,
-    init: function() {
+    init: function(scene) {
         scene.background = new THREE.Color(this.color);
         scene.fog = new THREE.Fog(scene.background, ground.depth, ground.depth+20);
     },
-    update: function() {
+    update: function(scene) {
         if (camera.obj.position.y>500) {
             const newColor = new THREE.Color(this.color).lerp(new THREE.Color(0 ,0, 0), (camera.obj.position.y-500)/500);
             
@@ -62,7 +59,7 @@ const ground = {
     depth: 60,
     obj: null,
     plane: new THREE.Plane(new THREE.Vector3(0,1,0)),
-    init: function() {
+    init: function(scene) {
         const material = new THREE.MeshBasicMaterial({
             map: Loader.assets.textures.groundMap.data
         });
@@ -85,7 +82,7 @@ const ground = {
 
 const camera = {
     obj: null,
-    init: function() {
+    init: function(scene) {
         const fov = 35;
         const aspect = 2;
         const near = 0.1;
@@ -122,7 +119,7 @@ const lights = {
     skyColor: 0xB1E1FF,
     groundColor: 0x999966,
     ambientLight: null,
-    init: function() {
+    init: function(scene) {
         
         this.ambientLight = new THREE.HemisphereLight(this.skyColor, this.groundColor, 0.4);
         scene.add(this.ambientLight);
@@ -201,7 +198,7 @@ const controls = {
 
 const clouds = {
     obj: null,
-    init: function() {
+    init: function(scene) {
         const cloudGeo = new THREE.PlaneGeometry(2, 1, 1);
         const cloudMaterial = new THREE.MeshBasicMaterial( {
             map: Loader.assets.textures.cloudMap.data,
@@ -226,7 +223,7 @@ const clouds = {
 const stars = {
     mat: null,
     obj: null,
-    init: function() {
+    init: function(scene) {
         const starVertices = [];
         for (let i=0; i<10000; i++) {
             const x = THREE.MathUtils.randFloatSpread(1000);
@@ -255,8 +252,41 @@ const stars = {
     }
 }
 
+const playAndPause = {
+    animations: null,
+    init: function() {
+        const pauseDiv = document.createElement("div");
+        pauseDiv.setAttribute("id", "pause");
+        pauseDiv.innerHTML = "II";
+        document.body.appendChild(pauseDiv);
+
+        function pause() {
+            this.animations = TWEEN.getAll();
+            this.animations.forEach(element => element.pause());
+            pauseDiv.innerHTML = "&#9654;";
+            pauseDiv.onclick = play;
+        }
+        
+        function play() {
+            this.animations.forEach(element => element.resume());
+            pauseDiv.innerHTML = "II";
+            pauseDiv.onclick = pause;
+        }
+
+        pauseDiv.onclick = pause;
+        window.onblur = pause;
+        window.onfocus = play;
+    }
+}
+
 
 function start() {
+    document.body.innerHTML = "";
+
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("id", "c");
+    const renderer = new THREE.WebGLRenderer({canvas, antialias: true});
+
     const scoreDiv = document.createElement("div");
     scoreDiv.setAttribute("id", "score");
     scoreDiv.innerText = "SCORE:0";
@@ -264,26 +294,28 @@ function start() {
 
     var stats = new Stats();
     stats.showPanel(0);
+    stats.dom.style.left = "calc(50% - 40px)";
     document.body.appendChild(stats.dom);
+
+    playAndPause.init();
 
     document.body.appendChild(canvas);
 
     
-    scene = new THREE.Scene();
+    const scene = new THREE.Scene();
 
     controls.init();
     frustum.init();
-    backgroundAndFog.init();
-    camera.init();
-    ground.init();
-    lights.init();
+    backgroundAndFog.init(scene);
+    camera.init(scene);
+    ground.init(scene);
+    lights.init(scene);
     column.init(scene);
     column.addSteps(9);
     playerCharacter.init(scene);
-    clouds.init();
-    stars.init();
-
-
+    clouds.init(scene);
+    stars.init(scene);
+   
 
     let lastRealStep = 0;
     let lastStep = 0;
@@ -306,7 +338,7 @@ function start() {
         camera.update();
         frustum.update();
 
-        backgroundAndFog.update();
+        backgroundAndFog.update(scene);
         lights.update();
 
         clouds.update();
@@ -378,28 +410,22 @@ function start() {
             gameOver(score);
             return;
         }
+        
+        renderer.render(scene, camera.obj);
 
         stats.end();
-        renderer.render(scene, camera.obj);
         requestAnimationFrame(render);
     }
     requestAnimationFrame(render);  
 }
 
 function newGame() {
-    document.body.innerHTML = "";
-
-    canvas = document.createElement("canvas");
-    canvas.setAttribute("id", "c");
-    renderer = new THREE.WebGLRenderer({canvas, antialias: true});
-    const anisotropy = renderer.capabilities.getMaxAnisotropy();
-
     if(Loader.loaded){
         console.log("a");
         start();
     } else {
         Loader.onLoad = start;
-        Loader.load(anisotropy);
+        Loader.load();
     }
 }
 
