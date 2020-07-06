@@ -263,7 +263,7 @@ const playAndPause = {
         function pause() {
             this.animations = TWEEN.getAll();
             this.animations.forEach(element => element.pause());
-            pauseDiv.innerHTML = "&#9654;";
+            pauseDiv.innerHTML = "&#9658;";
             pauseDiv.onclick = play;
         }
         
