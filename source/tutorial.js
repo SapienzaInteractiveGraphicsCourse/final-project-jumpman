@@ -15,7 +15,7 @@ function drawTutorial() {
     const tutorialPar = document.createElement("p");
     tutorialPar.setAttribute("class", "tutorial");
     tutorialPar.innerHTML = 
-    "Jump the steps of the ladder without falling, let's what hegiht you can reach!<br><br>" +
+    "Jump the steps of the ladder without falling, let's what height you can reach!<br><br>" +
     "Use the left and right arrow keys, or tap on the right or on the left of the screen " +
     "on touch screen devices, to control the character.<br><br>" +
     "Watch out for the different type of steps:";

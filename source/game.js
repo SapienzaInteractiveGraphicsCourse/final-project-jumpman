@@ -32,7 +32,7 @@ function gameOver(score) {
     menuBt.onclick = mainMenu;
     gameOverDiv.appendChild(menuBt);
 
-    const player = prompt("Please enter your name:", "");
+    const player = prompt("Please enter your name to add the score to the leaderboard:", "");
     addToLeaderboard(player, score);
 }
 
