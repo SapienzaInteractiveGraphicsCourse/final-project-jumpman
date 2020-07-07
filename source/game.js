@@ -155,7 +155,7 @@ const lights = {
 const controls = {
     move: 0,
     init: function() {
-        move = 0;
+        this.move = 0;
         const touchLeft = document.createElement("div");
         touchLeft.setAttribute("id", "touch-left");
         document.body.insertBefore(touchLeft, document.body.firstChild);
