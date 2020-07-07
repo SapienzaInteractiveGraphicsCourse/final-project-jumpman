@@ -7,6 +7,7 @@ import * as playerCharacter from './playerCharacter.js';
 import {addToLeaderboard} from './leaderboard.js';
 import {mainMenu} from './menu.js';
 
+let player;
 
 function gameOver(score) {
     window.onblur = "";
@@ -305,14 +306,6 @@ const playAndPause = {
     }
 }
 
-const audio = {
-    player: null,
-    init: function() {
-        const listener = new THREE.AudioListener();
-        camera.obj.add(listener);
-        this.player = new THREE.Audio(listener);
-    }
-}
 
 let render;
 
@@ -344,7 +337,6 @@ function start() {
     frustum.init();
     backgroundAndFog.init(scene);
     camera.init(scene);
-    audio.init();
 
     ground.init(scene);
     lights.init(scene);
@@ -432,9 +424,9 @@ function start() {
                     }
 
                     if (soundEffect != null) {
-                        audio.player.setBuffer(soundEffect);
-                        audio.player.setVolume(0.5);
-                        audio.player.play();
+                        player.setBuffer(soundEffect);
+                        player.setVolume(0.5);
+                        player.play();
                     }
 
                     if (jump) {
@@ -474,6 +466,15 @@ function start() {
 }
 
 function newGame() {
+    //Safari audio fix
+    const listener = new THREE.AudioListener();
+    player = new THREE.Audio(listener);
+
+    // create empty buffer
+    const buffer = listener.context.createBuffer(1, 1, 22050);
+    player.setBuffer(buffer);
+    player.play();
+
     if(Loader.loaded){
         start();
     } else {
