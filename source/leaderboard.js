@@ -1,6 +1,5 @@
 import {setCookie, getCookie} from './utils.js';
 import {mainMenu} from './menu.js';
-import { DstColorFactor } from './three.js-r118/build/three.module.js';
 
 function getLeaderboard() {
     const leaderboard = getCookie("leaderboard");
@@ -28,6 +27,7 @@ function leaderboard() {
     document.body.innerHTML = "";
 
     const table = document.createElement("table");
+    table.setAttribute("class", "leaderboard");
     const tHeaderRow = table.createTHead().insertRow(0);
     tHeaderRow.insertCell(0).innerText = "Player";
     tHeaderRow.insertCell(1).innerText = "Score";
@@ -56,7 +56,7 @@ function leaderboard() {
     clearBt.innerText = "Clear leaderboard";
     clearBt.onclick = function() {
         clearLeaderboard();
-        document.getElementsByTagName("tbody")[0].innerHTML = "";
+        tBody.innerHTML = "";
     }
     document.body.appendChild(clearBt);
 

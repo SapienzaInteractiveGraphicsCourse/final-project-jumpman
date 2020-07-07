@@ -1,7 +1,7 @@
 import * as THREE from './three.js-r118/build/three.module.js';
 import {Loader} from './loader.js';
 import Stats from './three.js-r118/examples/jsm/libs/stats.module.js';
-import {indexOfMax, randomInRange, resizeRendererToDisplaySize} from './utils.js';
+import {resizeRendererToDisplaySize} from './utils.js';
 import * as column from './column.js';
 import * as playerCharacter from './playerCharacter.js';
 import {addToLeaderboard} from './leaderboard.js';

@@ -538,4 +538,5 @@ function up(y) {
         .start(); 
 }
 
-export {init, addSteps, removeSteps, update, realSteps, stepTypes, up};
+export {init, addSteps, removeSteps, update, realSteps, stepTypes, up, 
+        initGeometries, initStepsMaterials, geometries, materials};
