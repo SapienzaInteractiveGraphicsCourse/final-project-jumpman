@@ -8,6 +8,8 @@ import * as THREE from './three.js-r118/build/three.module.js';
 
 function drawTutorial() {
     document.body.innerHTML = "";
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
 
     const tutorialDiv = document.createElement("div");
     tutorialDiv.setAttribute("class", "tutorial");

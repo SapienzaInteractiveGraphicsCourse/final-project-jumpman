@@ -4,6 +4,8 @@ import {tutorial} from './tutorial.js';
 
 function mainMenu() {
     document.body.innerHTML = "";
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
 
     const title = document.createElement("h");
     title.innerText = "JumpMan";

@@ -49,6 +49,10 @@ const Loader = {
     },
 
     load: function(anisotropy) {
+        document.body.innerHTML = "";
+        const text = document.createElement("h");
+        text.innerText = "Loading...";
+        document.body.appendChild(text);
         for (const texture of Object.values(this.assets.textures)) {
             textureLoader.load(texture.href, (data) => {
                 texture.data = data;

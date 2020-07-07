@@ -25,6 +25,8 @@ function clearLeaderboard() {
 
 function leaderboard() {
     document.body.innerHTML = "";
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
 
     const table = document.createElement("table");
     table.setAttribute("class", "leaderboard");

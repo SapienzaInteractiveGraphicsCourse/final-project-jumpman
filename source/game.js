@@ -312,6 +312,8 @@ let render;
 
 function start() {
     document.body.innerHTML = "";
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
 
     const canvas = document.createElement("canvas");
     canvas.setAttribute("id", "c");
