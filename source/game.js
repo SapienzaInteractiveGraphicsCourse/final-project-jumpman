@@ -307,12 +307,10 @@ const playAndPause = {
 
 const audio = {
     player: null,
-    loader: null,
     init: function() {
         const listener = new THREE.AudioListener();
         camera.obj.add(listener);
         this.player = new THREE.Audio(listener);
-        this.loader = new THREE.AudioLoader();
     }
 }
 
@@ -399,7 +397,7 @@ function start() {
                     let high = false;
                     let y = step.position.y;
                     let jump = true;
-                    let soundEffect = './../assets/hit.wav';
+                    let soundEffect = Loader.assets.audio.hit.data;
 
                     switch (step.userData.type) {
                         case column.stepTypes.FAKE:
@@ -418,15 +416,15 @@ function start() {
                             y += 30;
                             high = true;
                             step.userData.jump();
-                            soundEffect = './../assets/srping.flac';
+                            soundEffect = Loader.assets.audio.spring.data;
                             break;
                             
                         case column.stepTypes.BREAKABLE:
                             if(step.userData.status == 'intact') {
-                                soundEffect = './../assets/crack.wav'; 
+                                soundEffect = Loader.assets.audio.crack.data; 
                                 step.userData.crack();
                             } else {
-                                soundEffect = './../assets/break.wav';
+                                soundEffect = Loader.assets.audio.break.data;
                                 jump = false;
                                 step.userData.break();
                             }
@@ -434,11 +432,9 @@ function start() {
                     }
 
                     if (soundEffect != null) {
-                        audio.loader.load(soundEffect, function(buffer) {
-                            audio.player.setBuffer(buffer);
-                            audio.player.setVolume(0.5);
-                            audio.player.play();
-                        });
+                        audio.player.setBuffer(soundEffect);
+                        audio.player.setVolume(0.5);
+                        audio.player.play();
                     }
 
                     if (jump) {

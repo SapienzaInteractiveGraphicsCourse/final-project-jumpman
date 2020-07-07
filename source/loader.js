@@ -39,7 +39,13 @@ const Loader = {
         objects: {
             headObj: {mtlHref:"./../assets/head.mtl", objHref:"./../assets/head.obj"},
             handObj: {mtlHref:"./../assets/hand.mtl", objHref:"./../assets/hand.obj"},
-        }  
+        },
+        audio: {
+            hit:    {href: './../assets/hit.wav'},
+            spring: {href: './../assets/spring.flac'},
+            crack:  {href: './../assets/crack.wav'},
+            break:  {href: './../assets/break.wav'},
+        }
     },
 
     load: function(anisotropy) {
@@ -57,6 +63,12 @@ const Loader = {
                 objLoader.load(object.objHref, (data) => {
                     object.data = data;
                 });
+            });
+        }
+        for (const audio of Object.values(this.assets.audio)) {
+            const loader = new THREE.AudioLoader();
+            loader.load(audio.href, (data) => {
+                audio.data = data;
             });
         }
     }
