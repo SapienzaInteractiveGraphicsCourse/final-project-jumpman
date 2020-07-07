@@ -279,6 +279,17 @@ const playAndPause = {
     }
 }
 
+const audio = {
+    player: null,
+    loader: null,
+    init: function() {
+        const listener = new THREE.AudioListener();
+        camera.obj.add(listener);
+        this.player = new THREE.Audio(listener);
+        this.loader = new THREE.AudioLoader();
+    }
+}
+
 
 function start() {
     document.body.innerHTML = "";
@@ -308,6 +319,8 @@ function start() {
     frustum.init();
     backgroundAndFog.init(scene);
     camera.init(scene);
+    audio.init();
+
     ground.init(scene);
     lights.init(scene);
     column.init(scene, renderer);
@@ -319,6 +332,8 @@ function start() {
 
     let lastRealStep = 0;
     let lastStep = 0;
+
+    
 
     renderer.render(scene, camera.obj);
     playerCharacter.startFallAnimation();
@@ -357,31 +372,46 @@ function start() {
                     let high = false;
                     let y = step.position.y;
                     let jump = true;
+                    let soundEffect = './../assets/hit.wav';
 
                     switch (step.userData.type) {
                         case column.stepTypes.FAKE:
+                            soundEffect = null;
                             jump = false;
                             break;
                         
                         case column.stepTypes.FADE:
-                            if (step.material.opacity < 0.2)
+                            if (step.material.opacity < 0.2) {
+                                soundEffect = null;
                                 jump = false;
+                            }
                             break;
 
                         case column.stepTypes.HIGH_JUMP:
                             y += 30;
                             high = true;
                             step.userData.jump();
+                            soundEffect = './../assets/srping.flac';
                             break;
                             
                         case column.stepTypes.BREAKABLE:
                             if(step.userData.status == 'intact') {
+                                soundEffect = './../assets/crack.wav'; 
                                 step.userData.crack();
                             } else {
+                                soundEffect = './../assets/break.wav';
                                 jump = false;
                                 step.userData.break();
                             }
                             break;
+                    }
+
+                    if (soundEffect != null) {
+                        audio.loader.load(soundEffect, function(buffer) {
+                            audio.player.setBuffer(buffer);
+                            audio.player.setVolume(0.5);
+                            audio.player.play();
+                        });
                     }
 
                     if (jump) {
