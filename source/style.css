@@ -43,6 +43,13 @@ html, body {
    height: 100%;
    display: block;
 }
+#tutorial {
+    padding: 20px;
+    text-align: justify;
+    color : white;
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 18px;
+}
 #score {
     position: absolute;
     right: 0px;
