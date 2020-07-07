@@ -9,6 +9,8 @@ import {mainMenu} from './menu.js';
 
 
 function gameOver(score) {
+    window.onblur = "";
+    window.onfocus = "";
     const gameOverDiv = document.createElement("div");
     gameOverDiv.setAttribute("id", "game-over");
     document.body.appendChild(gameOverDiv);
@@ -253,6 +255,7 @@ const stars = {
 }
 
 const playAndPause = {
+    paused: false,
     animations: null,
     init: function() {
         const pauseDiv = document.createElement("div");
@@ -260,17 +263,32 @@ const playAndPause = {
         pauseDiv.innerHTML = "II";
         document.body.appendChild(pauseDiv);
 
+        const darkDiv = document.createElement("div");
+        darkDiv.setAttribute("id", "dark-div");
+        darkDiv.style.position = "fixed";
+        darkDiv.style.height = "100%";
+        darkDiv.style.width = "100%";
+        darkDiv.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        darkDiv.style.display = "none";
+        darkDiv.onclick = play;  
+
+        document.body.appendChild(darkDiv);
+
         function pause() {
-            this.animations = TWEEN.getAll();
-            this.animations.forEach(element => element.pause());
+            playAndPause.paused = true;
+            playAndPause.animations = TWEEN.getAll();
+            playAndPause.animations.forEach(element => element.pause());
             pauseDiv.innerHTML = "&#9658;";
-            pauseDiv.onclick = play;
+            darkDiv.style.display = "block"; 
         }
         
         function play() {
-            this.animations.forEach(element => element.resume());
+            playAndPause.animations.forEach(element => element.resume());
             pauseDiv.innerHTML = "II";
             pauseDiv.onclick = pause;
+            playAndPause.paused = false;
+            darkDiv.style.display = "none"; 
+            requestAnimationFrame(render);
         }
 
         pauseDiv.onclick = pause;
@@ -290,6 +308,7 @@ const audio = {
     }
 }
 
+let render;
 
 function start() {
     document.body.innerHTML = "";
@@ -338,7 +357,7 @@ function start() {
     renderer.render(scene, camera.obj);
     playerCharacter.startFallAnimation();
 
-    function render(time) {
+    render = function(time) {
         stats.begin();
         TWEEN.update(time);
 
@@ -445,7 +464,7 @@ function start() {
         renderer.render(scene, camera.obj);
 
         stats.end();
-        requestAnimationFrame(render);
+        if(!playAndPause.paused) requestAnimationFrame(render);
     }
     requestAnimationFrame(render);  
 }
