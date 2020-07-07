@@ -6,9 +6,24 @@
     <title>JumpMan</title>
     <script type="module">
         import {mainMenu} from "./menu.js";
+        import * as THREE from './three.js-r118/build/three.module.js';
+
         window.onload = function() {
             mainMenu();
         }
+
+        function safariAudioFix() {
+            const ctx = THREE.AudioContext.getContext();
+            const buffer = ctx.createBuffer(1, 1, 22050);
+            const source = ctx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(ctx.destination);
+            source.start ? source.start(0, 2, 1) : source.noteOn(0, 2, 1);
+        }
+
+        document.onclick = safariAudioFix;
+        window.ontouchstart = safariAudioFix;
+
     </script>
     <link rel="stylesheet" type="text/css" href="./style.css">
 </head>

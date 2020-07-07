@@ -85,12 +85,38 @@ div.tutorial {
 }
 #game-over {
     position: absolute;
-    top: 20%;
+    padding-top: 10%;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     text-align: center;
     width: 100%;
     color : white;
     font-family: Verdana, Geneva, sans-serif;
     font-size: 30px;
+}
+#add-to-leaderboard {
+    font-size: 16px;
+    max-width: 300px;
+    margin-top: 0px;
+    margin-bottom: 50px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#add-to-leaderboard > input {
+    border: none;
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 4px;
+}
+#add-to-leaderboard > button {
+    border: none;
+    padding: 5px;
+    margin-left: 10px;
+    background-color: white;
+    color: black;
+    font-size: 16px;
+    border-radius: 4px;
 }
 .game-button {
     display: block;

@@ -7,7 +7,6 @@ import * as playerCharacter from './playerCharacter.js';
 import {addToLeaderboard} from './leaderboard.js';
 import {mainMenu} from './menu.js';
 
-let player;
 
 function gameOver(score) {
     window.onblur = "";
@@ -20,6 +19,33 @@ function gameOver(score) {
     gameOverText.innerText = "Game Over";
     gameOverDiv.appendChild(gameOverText);
 
+    const addToLeaderboardDiv = document.createElement("div");
+    addToLeaderboardDiv.setAttribute("id", "add-to-leaderboard");
+
+    const addNameP = document.createElement("p");
+    addNameP.innerText = "Enter your name to add the score to the leaderboard:";
+    addToLeaderboardDiv.appendChild(addNameP);
+
+    const inputBox = document.createElement("input");
+    inputBox.setAttribute("type", "text");
+    addToLeaderboardDiv.appendChild(inputBox);
+
+    const addButton = document.createElement("button");
+    addButton.innerText = "Add";
+    addToLeaderboardDiv.appendChild(addButton);
+    addButton.onclick = function() {
+        addToLeaderboard(inputBox.value, score);
+        addToLeaderboardDiv.style.display = "none";
+    }
+    inputBox.onkeydown = function(e) {
+        if (e.keyCode == 13) {
+            addToLeaderboard(inputBox.value, score);
+            addToLeaderboardDiv.style.display = "none";
+        }
+    }
+
+    gameOverDiv.appendChild(addToLeaderboardDiv);
+
     const newGameBt = document.createElement("button");
     newGameBt.setAttribute("class", "game-button");
     newGameBt.innerText = "New Game";
@@ -31,9 +57,6 @@ function gameOver(score) {
     menuBt.innerText = "Back to menu";
     menuBt.onclick = mainMenu;
     gameOverDiv.appendChild(menuBt);
-
-    const player = prompt("Please enter your name to add the score to the leaderboard:", "");
-    addToLeaderboard(player, score);
 }
 
 
@@ -285,12 +308,14 @@ const playAndPause = {
         darkDiv.appendChild(menuBt);
 
         function pause() {
-            playAndPause.paused = true;
-            playAndPause.animations = TWEEN.getAll();
-            pauseDiv.onclick = play;
-            playAndPause.animations.forEach(element => element.pause());
-            pauseDiv.innerHTML = "&#9658;";
-            darkDiv.style.display = "block"; 
+            if(!playAndPause.paused) {
+                playAndPause.paused = true;
+                playAndPause.animations = TWEEN.getAll();
+                pauseDiv.onclick = play;
+                playAndPause.animations.forEach(element => element.pause());
+                pauseDiv.innerHTML = "&#9658;";
+                darkDiv.style.display = "block"; 
+            }
         }
         
         function play() {
@@ -311,6 +336,9 @@ const playAndPause = {
 let render;
 
 function start() {
+    const listener = new THREE.AudioListener();
+    const player = new THREE.Audio(listener);
+
     document.body.innerHTML = "";
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
@@ -469,15 +497,6 @@ function start() {
 }
 
 function newGame() {
-    //Safari audio fix
-    const listener = new THREE.AudioListener();
-    player = new THREE.Audio(listener);
-
-    // create empty buffer
-    const buffer = listener.context.createBuffer(1, 1, 22050);
-    player.setBuffer(buffer);
-    player.play();
-
     if(Loader.loaded){
         start();
     } else {
