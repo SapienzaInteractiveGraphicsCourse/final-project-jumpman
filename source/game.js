@@ -255,9 +255,10 @@ const stars = {
 }
 
 const playAndPause = {
-    paused: false,
+    paused: null,
     animations: null,
     init: function() {
+        this.paused = false;
         const pauseDiv = document.createElement("div");
         pauseDiv.setAttribute("id", "pause");
         pauseDiv.innerHTML = "II";
@@ -265,18 +266,26 @@ const playAndPause = {
 
         const darkDiv = document.createElement("div");
         darkDiv.setAttribute("id", "dark-div");
-        darkDiv.style.position = "fixed";
-        darkDiv.style.height = "100%";
-        darkDiv.style.width = "100%";
-        darkDiv.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
-        darkDiv.style.display = "none";
-        darkDiv.onclick = play;  
 
         document.body.appendChild(darkDiv);
+
+        const resumeBt = document.createElement("button");
+        resumeBt.setAttribute("class", "game-button");
+        resumeBt.innerText = "Resume";
+        resumeBt.style.marginTop = "40%";
+        resumeBt.onclick = play;
+        darkDiv.appendChild(resumeBt);
+    
+        const menuBt = document.createElement("button");
+        menuBt.setAttribute("class", "game-button");
+        menuBt.innerText = "Back to menu";
+        menuBt.onclick = mainMenu;
+        darkDiv.appendChild(menuBt);
 
         function pause() {
             playAndPause.paused = true;
             playAndPause.animations = TWEEN.getAll();
+            pauseDiv.onclick = play;
             playAndPause.animations.forEach(element => element.pause());
             pauseDiv.innerHTML = "&#9658;";
             darkDiv.style.display = "block"; 
@@ -293,7 +302,6 @@ const playAndPause = {
 
         pauseDiv.onclick = pause;
         window.onblur = pause;
-        window.onfocus = play;
     }
 }
 
