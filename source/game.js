@@ -11,6 +11,8 @@ import {mainMenu} from './menu.js';
 function gameOver(score) {
     window.onblur = "";
     window.onfocus = "";
+    document.getElementById("pause").style.display = "none";
+    
     const gameOverDiv = document.createElement("div");
     gameOverDiv.setAttribute("id", "game-over");
     document.body.appendChild(gameOverDiv);
@@ -461,7 +463,7 @@ function start() {
                     }
 
                     if (jump) {
-                        if (step.userData.id > lastRealStep) {
+                        if (step.userData.id > lastRealStep || high) {
                             const stepsJumped = step.name - lastStep;
                             column.addSteps(stepsJumped);
                             lastRealStep = step.userData.id;
