@@ -1,6 +1,7 @@
 import {leaderboard} from './leaderboard.js';
 import {newGame} from './game.js';
 import {tutorial} from './tutorial.js';
+import {credits} from './credits.js';
 
 function mainMenu() {
     document.body.innerHTML = "";
@@ -28,6 +29,12 @@ function mainMenu() {
     leaderboardBt.innerText = "Leaderboard";
     leaderboardBt.onclick = leaderboard;
     document.body.appendChild(leaderboardBt);
+
+    const creditsBt = document.createElement("button");
+    creditsBt.setAttribute("class", "menu-button");
+    creditsBt.innerText = "Credits";
+    creditsBt.onclick = credits;
+    document.body.appendChild(creditsBt);
 }
 
 export {mainMenu};
