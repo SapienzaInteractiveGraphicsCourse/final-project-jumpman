@@ -13,7 +13,7 @@ let realStepsCount;
 let rotation;
 let position;
 
-let columnGroup;
+let staircase;
 let column;
 
 const materials = {};
@@ -315,9 +315,9 @@ function init(scene) {
 
     rotation = 0;
     position = 1;
-    columnGroup = new THREE.Object3D();
+    staircase = new THREE.Object3D();
 
-    columnGroup.position.z = 10;
+    staircase.position.z = 10;
 
     const radialSegments = 30;  
     const geometry = new THREE.CylinderGeometry(radius, radius, columnHeight, radialSegments);
@@ -340,8 +340,8 @@ function init(scene) {
     stepTypeGenerator.init();
 
 
-    columnGroup.add(column);
-    scene.add(columnGroup);  
+    staircase.add(column);
+    scene.add(staircase);  
 }
 
 
@@ -482,7 +482,7 @@ function addSteps(num) {
         pivot.rotation.y = rotation;
 
         
-        columnGroup.add(pivot);    
+        staircase.add(pivot);    
 
         if (stepType == stepTypes.FAKE) {
             rotation += 0.8;
@@ -500,7 +500,7 @@ function addSteps(num) {
 
 function removeSteps(num) {
     for(let i=0; i<num; i++){
-        columnGroup.remove(allSteps[0].parent);
+        staircase.remove(allSteps[0].parent);
         if (allSteps[0].userData.type != stepTypes.FAKE) {
             realSteps.shift();
         } 
@@ -528,7 +528,7 @@ function update(move, frustum) {
         removeSteps(1);
     }
 
-    columnGroup.rotation.y += 0.02 * move;
+    staircase.rotation.y += 0.02 * move;
 }
 
 function up(y) {
