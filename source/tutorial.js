@@ -145,8 +145,16 @@ function drawTutorial() {
     {
         const elem = fadingStep.cells[1];
         const {scene, camera} = makeScene();
-        const mesh = new THREE.Mesh(column.geometries.normalStep, column.materials.fadingStep);
+        const mesh = new THREE.Mesh(column.geometries.normalStep, column.materials.fadeStep);
         scene.add(mesh);
+
+        const fade = new TWEEN.Tween(column.materials.fadeStep) 
+            .to({opacity: 0}, 2000)
+            .easing(TWEEN.Easing.Exponential.InOut)
+            .yoyo(true)
+            .repeat(Infinity)
+            .start();
+
         addScene(elem, (time, rect) => {
             camera.aspect = rect.width / rect.height;
             camera.updateProjectionMatrix();
@@ -183,6 +191,7 @@ function drawTutorial() {
   
     const clearColor = new THREE.Color('#000');
     function render(time) {
+      TWEEN.update(time);
       time *= 0.001;
   
       resizeRendererToDisplaySize(renderer);
