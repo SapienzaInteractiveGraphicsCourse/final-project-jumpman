@@ -26,6 +26,7 @@ const stepDepth = 1.8;
 const radius = 4;  
 const columnHeight = 80; 
 
+// Defines constants used to recognize the step types
 const stepTypes = {
     REAL: 0,
     MOVING: 1,
@@ -35,7 +36,7 @@ const stepTypes = {
     FAKE: 5
 }
 
-
+// The stepTypeGenerator is used to get the type for the next step to be added to the ladder
 const stepTypeGenerator = {
     count: null,
     prev: null,
@@ -85,7 +86,7 @@ const stepTypeGenerator = {
     }
 }
 
-
+// Initializes the various types of steps
 function initStepsMaterials() {
     //real step
     materials.realStep = new THREE.MeshPhongMaterial({
@@ -185,7 +186,7 @@ function initStepsMaterials() {
                                 crackedStepTopMat, crackedStepTopMat, 
                                 crackedStepSideMat, crackedStepSideMat];
     
-    //fading step material
+    //fading step 
     materials.fadeStep = new THREE.MeshPhongMaterial({
         opacity: 1,
         emissive: 'white',
@@ -200,7 +201,7 @@ function initStepsMaterials() {
         .start();
 
 
-    //fake step material
+    //fake step 
     materials.fakeStep = new THREE.MeshPhongMaterial({
         color: 0xFFFFFF,
         opacity: 0.7,
@@ -208,7 +209,7 @@ function initStepsMaterials() {
     });
 }
 
-
+// Initializes the geometries of the steps
 function initGeometries() {
     //normal step
     geometries.normalStep = new THREE.BoxBufferGeometry(stepWidth, stepHeight, stepDepth);
@@ -283,6 +284,7 @@ function initGeometries() {
     geometries.brokenStepRight = new THREE.ExtrudeBufferGeometry( rightShape, extrudeSettings );
 }
 
+// Preloads the steps materials and geometries to avoid stuttering
 function preload(scene) {
     const tempGeo = new THREE.BoxBufferGeometry(1, 1, 1);
 
@@ -307,6 +309,7 @@ function preload(scene) {
     }
 }
 
+// Initializes the staircase and adds it to the scene
 function init(scene) {
     allSteps = [];
     realSteps = [];
@@ -339,12 +342,11 @@ function init(scene) {
 
     stepTypeGenerator.init();
 
-
     staircase.add(column);
     scene.add(staircase);  
 }
 
-
+// Adds num steps to the top of the staircase
 function addSteps(num) {
     const l = allStepsCount+num;
     for (; allStepsCount<l; allStepsCount++) {
@@ -498,6 +500,7 @@ function addSteps(num) {
     }
 }
 
+// Removes num steps from the bottom of the staircase
 function removeSteps(num) {
     for(let i=0; i<num; i++){
         staircase.remove(allSteps[0].parent);
@@ -508,6 +511,7 @@ function removeSteps(num) {
     }
 }
 
+// Updates the staircase
 function update(move, frustum) {
     for (let i=0; i<realSteps.length; i++) {
         if(realSteps[i].userData.type == stepTypes.HIGH_JUMP) {
@@ -531,6 +535,7 @@ function update(move, frustum) {
     staircase.rotation.y += 0.02 * move;
 }
 
+// Moves the central column of the staircase by y points
 function up(y) {
     const up = new TWEEN.Tween(column.position) 
         .to({y: y}, 1000) 

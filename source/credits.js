@@ -1,15 +1,15 @@
 import {mainMenu} from './menu.js';
 
+// Draws the credits page
 function credits() {
     document.body.innerHTML = "";
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
 
     const creditsDiv = document.createElement("div");
-    creditsDiv.setAttribute("class", "tutorial"); //update
+    creditsDiv.setAttribute("class", "credits");
     document.body.appendChild(creditsDiv);
     const creditsPar = document.createElement("p");
-    creditsPar.setAttribute("class", "tutorial"); //update
     creditsPar.innerHTML = 
     "I have developed this game as part of the Interactive Graphics course from the Engineering " +
     "in Computer Science master's degree at Sapienza - University of Rome. <br><br>" +
@@ -35,7 +35,8 @@ function credits() {
     "Some of the assets have been created by myself, in particular:<br>" +
     "<ul><li>I have designed the <a href='./../assets/starMap.png'>starMap.png</a> texture using <a href='https://affinity.serif.com/it/designer/'>Affinity Designer</a>" +
     "<li>I have desinged the <a href='./../assets/hand.mtl'>hand.mtl</a>, <a href='./../assets/hand.obj'>hand.obj</a>, <a href='./../assets/hand.png'>hand.png</a>, <a href='./../assets/head.mtl'>head.mtl</a>, <a href='./../assets/head.obj'>head.obj</a>, <a href='./../assets/head.png'>head.png</a> materials, objects and textures using <a href='https://ephtracy.github.io/'>MagicaVoxel</a> and taking inspiration from <a href='https://opengameart.org/content/hero-1'>this model on opengameart.org</a> created by luckygreentiger" +
-    "</ul><br>";
+    "</ul><br>" +
+    "Simone Bartolini";
     creditsDiv.appendChild(creditsPar);
 
     const menuBt = document.createElement("button");

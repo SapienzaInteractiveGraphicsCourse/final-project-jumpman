@@ -3,6 +3,7 @@ import {newGame} from './game.js';
 import {tutorial} from './tutorial.js';
 import {credits} from './credits.js';
 
+// Draws the main menu
 function mainMenu() {
     document.body.innerHTML = "";
     document.body.scrollTop = 0;

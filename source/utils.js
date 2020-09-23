@@ -1,3 +1,5 @@
+/* this file contains various utility functions that are used in other parts of the code */
+
 function setCookie(cname, cvalue) {
     document.cookie = cname + "=" + cvalue;
 }

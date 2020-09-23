@@ -1,11 +1,11 @@
 import {mainMenu} from './menu.js';
 import {newGame} from './game.js';
 import {Loader} from './loader.js';
-import * as column from './column.js';
+import * as staircase from './staircase.js';
 import * as THREE from './three.js-r118/build/three.module.js';
 
 
-
+// Draws the tutorial page
 function drawTutorial() {
     document.body.innerHTML = "";
     document.body.scrollTop = 0;
@@ -15,7 +15,6 @@ function drawTutorial() {
     tutorialDiv.setAttribute("class", "tutorial");
     document.body.appendChild(tutorialDiv);
     const tutorialPar = document.createElement("p");
-    tutorialPar.setAttribute("class", "tutorial");
     tutorialPar.innerHTML = 
     "Jump the steps of the ladder without falling, let's see what height you can reach!<br><br>" +
     "Use the left and right arrow keys, or tap on the right or on the left of the screen " +
@@ -81,13 +80,13 @@ function drawTutorial() {
         return {scene, camera};
     }
 
-    column.initGeometries();
-    column.initStepsMaterials();
+    staircase.initGeometries();
+    staircase.initStepsMaterials();
   
     {
         const elem = normalStep.cells[1];
         const {scene, camera} = makeScene();
-        const mesh = new THREE.Mesh(column.geometries.normalStep, column.materials.realStep);
+        const mesh = new THREE.Mesh(staircase.geometries.normalStep, staircase.materials.realStep);
         scene.add(mesh);
         addScene(elem, (time, rect) => {
             camera.aspect = rect.width / rect.height;
@@ -100,7 +99,7 @@ function drawTutorial() {
     {
         const elem = movingStep.cells[1];
         const {scene, camera} = makeScene();
-        const mesh = new THREE.Mesh(column.geometries.normalStep, column.materials.movingStep);
+        const mesh = new THREE.Mesh(staircase.geometries.normalStep, staircase.materials.movingStep);
         scene.add(mesh);
         addScene(elem, (time, rect) => {
             camera.aspect = rect.width / rect.height;
@@ -113,9 +112,9 @@ function drawTutorial() {
     {
         const elem = springStep.cells[1];
         const {scene, camera} = makeScene();
-        const stepTop = new THREE.Mesh(column.geometries.highJumpStep, column.materials.highJumpStep);
-        const stepBottom = new THREE.Mesh(column.geometries.highJumpStep, column.materials.highJumpStep);
-        const spring = new THREE.Mesh(column.geometries.highJumpSpring, column.materials.highJumpSpring);
+        const stepTop = new THREE.Mesh(staircase.geometries.highJumpStep, staircase.materials.highJumpStep);
+        const stepBottom = new THREE.Mesh(staircase.geometries.highJumpStep, staircase.materials.highJumpStep);
+        const spring = new THREE.Mesh(staircase.geometries.highJumpSpring, staircase.materials.highJumpSpring);
         stepBottom.add(spring);
         stepTop.position.y = spring.geometry.parameters.path.stepHeight;
         spring.add(stepTop);
@@ -132,7 +131,7 @@ function drawTutorial() {
     {
         const elem = breakableStep.cells[1];
         const {scene, camera} = makeScene();
-        const mesh = new THREE.Mesh(column.geometries.normalStep, column.materials.breakableStep);
+        const mesh = new THREE.Mesh(staircase.geometries.normalStep, staircase.materials.breakableStep);
         scene.add(mesh);
         addScene(elem, (time, rect) => {
             camera.aspect = rect.width / rect.height;
@@ -145,10 +144,10 @@ function drawTutorial() {
     {
         const elem = fadingStep.cells[1];
         const {scene, camera} = makeScene();
-        const mesh = new THREE.Mesh(column.geometries.normalStep, column.materials.fadeStep);
+        const mesh = new THREE.Mesh(staircase.geometries.normalStep, staircase.materials.fadeStep);
         scene.add(mesh);
 
-        const fade = new TWEEN.Tween(column.materials.fadeStep) 
+        const fade = new TWEEN.Tween(staircase.materials.fadeStep) 
             .to({opacity: 0}, 2000)
             .easing(TWEEN.Easing.Exponential.InOut)
             .yoyo(true)
@@ -166,7 +165,7 @@ function drawTutorial() {
     {
         const elem = fakeStep.cells[1];
         const {scene, camera} = makeScene();
-        const mesh = new THREE.Mesh(column.geometries.normalStep, column.materials.fakeStep);
+        const mesh = new THREE.Mesh(staircase.geometries.normalStep, staircase.materials.fakeStep);
         scene.add(mesh);
         addScene(elem, (time, rect) => {
             camera.aspect = rect.width / rect.height;
@@ -179,52 +178,52 @@ function drawTutorial() {
 
   
     function resizeRendererToDisplaySize(renderer) {
-      const canvas = renderer.domElement;
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
-      const needResize = canvas.width !== width || canvas.height !== height;
-      if (needResize) {
-        renderer.setSize(width, height, false);
-      }
-      return needResize;
+        const canvas = renderer.domElement;
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        const needResize = canvas.width !== width || canvas.height !== height;
+        if (needResize) {
+            renderer.setSize(width, height, false);
+        }
+        return needResize;
     }
   
     const clearColor = new THREE.Color('#000');
     function render(time) {
-      TWEEN.update(time);
-      time *= 0.001;
-  
-      resizeRendererToDisplaySize(renderer);
-  
-      renderer.setScissorTest(false);
-      renderer.setClearColor(clearColor, 0);
-      renderer.clear(true, true);
-      renderer.setScissorTest(true);
-  
-      const transform = `translateY(${window.scrollY}px)`;
-      renderer.domElement.style.transform = transform;
-  
-      for (const {elem, fn} of sceneElements) {
-        // get the viewport relative position of this element
-        const rect = elem.getBoundingClientRect();
-        const {left, right, top, bottom, width, height} = rect;
-  
-        const isOffscreen =
-            bottom < 0 ||
-            top > renderer.domElement.clientHeight ||
-            right < 0 ||
-            left > renderer.domElement.clientWidth;
-  
-        if (!isOffscreen) {
-          const positiveYUpBottom = renderer.domElement.clientHeight - bottom;
-          renderer.setScissor(left, positiveYUpBottom, width, height);
-          renderer.setViewport(left, positiveYUpBottom, width, height);
-  
-          fn(time, rect);
+        TWEEN.update(time);
+        time *= 0.001;
+    
+        resizeRendererToDisplaySize(renderer);
+    
+        renderer.setScissorTest(false);
+        renderer.setClearColor(clearColor, 0);
+        renderer.clear(true, true);
+        renderer.setScissorTest(true);
+    
+        const transform = `translateY(${window.scrollY}px)`;
+        renderer.domElement.style.transform = transform;
+    
+        for (const {elem, fn} of sceneElements) {
+            // get the viewport relative position of this element
+            const rect = elem.getBoundingClientRect();
+            const {left, right, top, bottom, width, height} = rect;
+    
+            const isOffscreen =
+                bottom < 0 ||
+                top > renderer.domElement.clientHeight ||
+                right < 0 ||
+                left > renderer.domElement.clientWidth;
+    
+            if (!isOffscreen) {
+            const positiveYUpBottom = renderer.domElement.clientHeight - bottom;
+            renderer.setScissor(left, positiveYUpBottom, width, height);
+            renderer.setViewport(left, positiveYUpBottom, width, height);
+    
+            fn(time, rect);
+            }
         }
-      }
   
-      requestAnimationFrame(render);
+        requestAnimationFrame(render);
     }
   
     requestAnimationFrame(render);
@@ -243,6 +242,8 @@ function drawTutorial() {
     document.body.appendChild(menuBt);
 }
 
+// Since the tutorial uses assets from the game we need to load them firsts
+// so we check if they are already loaded and of not we load them
 function tutorial() {
     if(Loader.loaded){
         drawTutorial();

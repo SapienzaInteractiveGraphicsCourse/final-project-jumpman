@@ -2,12 +2,12 @@ import * as THREE from './three.js-r118/build/three.module.js';
 import {Loader} from './loader.js';
 import Stats from './three.js-r118/examples/jsm/libs/stats.module.js';
 import {resizeRendererToDisplaySize} from './utils.js';
-import * as column from './column.js';
+import * as staircase from './staircase.js';
 import * as playerCharacter from './playerCharacter.js';
 import {addToLeaderboard} from './leaderboard.js';
 import {mainMenu} from './menu.js';
 
-
+// Draws the gameover div
 function gameOver(score) {
     window.onblur = "";
     window.onfocus = "";
@@ -61,13 +61,14 @@ function gameOver(score) {
     gameOverDiv.appendChild(menuBt);
 }
 
-
 const backgroundAndFog = {
     color: 0x00BFFF,
+    // Initializes the background and the fog
     init: function(scene) {
         scene.background = new THREE.Color(this.color);
         scene.fog = new THREE.Fog(scene.background, ground.depth, ground.depth+20);
     },
+    // Updates the color of the background and of the fog
     update: function(scene) {
         if (camera.obj.position.y>500) {
             const newColor = new THREE.Color(this.color).lerp(new THREE.Color(0 ,0, 0), (camera.obj.position.y-500)/500);
@@ -87,6 +88,8 @@ const ground = {
     depth: 60,
     obj: null,
     plane: new THREE.Plane(new THREE.Vector3(0,1,0)),
+
+    // Initializes the ground and adds it to the scene
     init: function(scene) {
         const material = new THREE.MeshBasicMaterial({
             map: Loader.assets.textures.groundMap.data
@@ -100,6 +103,8 @@ const ground = {
 
         scene.add(this.obj);
     },
+
+    // Updates the ground matrices
     update: function() {
         this.obj.updateMatrix();
         this.obj.updateMatrixWorld();
@@ -107,9 +112,10 @@ const ground = {
     }
 }
 
-
 const camera = {
     obj: null,
+
+    // Initializes the camera and adds it to the scene
     init: function(scene) {
         const fov = 35;
         const aspect = 2;
@@ -120,10 +126,14 @@ const camera = {
         this.obj.lookAt(0, 0, 0);
         scene.add(this.obj);
     },
+
+    // Updates the camera matrices
     update: function() {
         this.obj.updateMatrix();
         this.obj.updateMatrixWorld();
     },
+
+    // Moves the camera up by y points
     up: function(y) {
         const upAnimation = new TWEEN.Tween(this.obj.position) 
             .to({y: 40+y}, 1000) 
@@ -134,21 +144,25 @@ const camera = {
 
 const frustum = {
     obj: null,
+
+    // Initialized the view frustum
     init: function() {
         this.obj = new THREE.Frustum();
     },
+
+    // Updates the view frustum
     update: function() {
         this.obj.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(camera.obj.projectionMatrix, camera.obj.matrixWorldInverse));
     }
 }
 
-
 const lights = {
     skyColor: 0xB1E1FF,
     groundColor: 0x999966,
     ambientLight: null,
+
+    // Initializes the lights
     init: function(scene) {
-        
         this.ambientLight = new THREE.HemisphereLight(this.skyColor, this.groundColor, 0.4);
         scene.add(this.ambientLight);
     
@@ -157,6 +171,8 @@ const lights = {
         light.position.set(0, 4, 7);
         scene.add(light);    
     },
+
+    // Updates the lights colours
     update: function() {
         if (camera.obj.position.y>500) {
             const newSkyColor = new THREE.Color(this.skyColor)
@@ -179,6 +195,8 @@ const lights = {
 
 const controls = {
     move: 0,
+
+    // Initializes the controls listeners
     init: function() {
         this.move = 0;
         const touchLeft = document.createElement("div");
@@ -227,6 +245,8 @@ const controls = {
 
 const clouds = {
     obj: null,
+
+    // Initializes the clouds and adds them to the scene
     init: function(scene) {
         const cloudGeo = new THREE.PlaneGeometry(2, 1, 1);
         const cloudMaterial = new THREE.MeshBasicMaterial( {
@@ -244,6 +264,8 @@ const clouds = {
         scene.add(this.obj);
     
     },
+
+    // Updates the clouds orientations
     update: function() {
         this.obj.lookAt(camera.obj.position);
     }
@@ -252,6 +274,8 @@ const clouds = {
 const stars = {
     mat: null,
     obj: null,
+
+    // Initializes the stars and adds them to the scene
     init: function(scene) {
         const starVertices = [];
         for (let i=0; i<10000; i++) {
@@ -271,8 +295,10 @@ const stars = {
         } );
         this.obj = new THREE.Points(starGeo, this.mat);
         scene.add(this.obj);
-
-    }, update: function() {
+    }, 
+    
+    // Updates the stars position
+    update: function() {
         if (camera.obj.position.y>700 && camera.obj.position.y<800) {
             this.mat.opacity = (camera.obj.position.y-700)/100;
         }
@@ -284,6 +310,8 @@ const stars = {
 const playAndPause = {
     paused: null,
     animations: null,
+
+    // Initializes play&Pause button
     init: function() {
         this.paused = false;
         const pauseDiv = document.createElement("div");
@@ -309,10 +337,11 @@ const playAndPause = {
         menuBt.onclick = mainMenu;
         darkDiv.appendChild(menuBt);
 
+        // Pauses the game
         function pause() {
             if(!playAndPause.paused) {
                 playAndPause.paused = true;
-                playAndPause.animations = TWEEN.getAll();
+                playAndPause.animations = TWEEN.getAll(); // Saves the animaions status
                 pauseDiv.onclick = play;
                 playAndPause.animations.forEach(element => element.pause());
                 pauseDiv.innerHTML = "&#9658;";
@@ -320,8 +349,9 @@ const playAndPause = {
             }
         }
         
+        // Resume the game
         function play() {
-            playAndPause.animations.forEach(element => element.resume());
+            playAndPause.animations.forEach(element => element.resume()); // Retrieves the animations status
             pauseDiv.innerHTML = "II";
             pauseDiv.onclick = pause;
             playAndPause.paused = false;
@@ -337,6 +367,7 @@ const playAndPause = {
 
 let render;
 
+// Draws the game page and starts the game
 function start() {
     const listener = new THREE.AudioListener();
     const player = new THREE.Audio(listener);
@@ -373,8 +404,8 @@ function start() {
 
     ground.init(scene);
     lights.init(scene);
-    column.init(scene, renderer);
-    column.addSteps(9);
+    staircase.init(scene, renderer);
+    staircase.addSteps(9);
     playerCharacter.init(scene);
     clouds.init(scene);
     stars.init(scene);
@@ -390,34 +421,35 @@ function start() {
 
     render = function(time) {
         stats.begin();
+
+        // Updates the animations
         TWEEN.update(time);
 
+        // Updates the score
         const score = Math.floor(camera.obj.position.y-40);
         scoreDiv.innerText = "SCORE:"+score;
         
-
+        // Resizes the canvas if the window size is changed
         if (resizeRendererToDisplaySize(renderer)) {
             camera.obj.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.obj.updateProjectionMatrix();
         }
 
+        // Updates the various objects
         camera.update();
         frustum.update();
-
         backgroundAndFog.update(scene);
         lights.update();
-
         clouds.update();
         stars.update();
         ground.update();
-
-        column.update(controls.move, frustum.obj);
+        staircase.update(controls.move, frustum.obj);
         playerCharacter.update();
         
-
+        // Detects the collision between the character and the steps
         if (!playerCharacter.bouncing) {
-            for (let i=0; i<column.realSteps.length; i++) {
-                const step = column.realSteps[i]; 
+            for (let i=0; i<staircase.realSteps.length; i++) {
+                const step = staircase.realSteps[i]; 
                 if (step.userData.obb.intersectsBox3(playerCharacter.boundingBox)) {
                     let high = false;
                     let y = step.position.y;
@@ -425,26 +457,26 @@ function start() {
                     let soundEffect = Loader.assets.audio.hit.data;
 
                     switch (step.userData.type) {
-                        case column.stepTypes.FAKE:
+                        case staircase.stepTypes.FAKE:
                             soundEffect = null;
                             jump = false;
                             break;
                         
-                        case column.stepTypes.FADE:
+                        case staircase.stepTypes.FADE:
                             if (step.material.opacity < 0.2) {
                                 soundEffect = null;
                                 jump = false;
                             }
                             break;
 
-                        case column.stepTypes.HIGH_JUMP:
+                        case staircase.stepTypes.HIGH_JUMP:
                             y += 30;
                             high = true;
                             step.userData.jump();
                             soundEffect = Loader.assets.audio.spring.data;
                             break;
                             
-                        case column.stepTypes.BREAKABLE:
+                        case staircase.stepTypes.BREAKABLE:
                             if(step.userData.status == 'intact') {
                                 soundEffect = Loader.assets.audio.crack.data; 
                                 step.userData.crack();
@@ -465,12 +497,12 @@ function start() {
                     if (jump) {
                         if (step.userData.id > lastRealStep || high) {
                             const stepsJumped = step.name - lastStep;
-                            column.addSteps(stepsJumped);
+                            staircase.addSteps(stepsJumped);
                             lastRealStep = step.userData.id;
                             lastStep = step.name;
     
                             if (camera.obj.position.y>60){
-                                column.up(y);                           
+                                staircase.up(y);                           
                             }
                             
                             camera.up(y);
@@ -482,6 +514,8 @@ function start() {
                 }
             }
         }
+
+        // detects if the player has fallen and if so it ends the game
         if (playerCharacter.boundingBox.intersectsPlane(ground.plane) ||
         !frustum.obj.containsPoint(playerCharacter.topPosition)) {
             playerCharacter.stopFallAnimation();
@@ -497,6 +531,8 @@ function start() {
     requestAnimationFrame(render);  
 }
 
+// Before starting the game we check if the assets have been already loaded
+// if not we load them, after that the game is started
 function newGame() {
     if(Loader.loaded){
         start();

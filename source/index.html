@@ -12,6 +12,7 @@
             mainMenu();
         }
 
+        // This is needed to make shure that audio works in safari
         function safariAudioFix() {
             const ctx = THREE.AudioContext.getContext();
             const buffer = ctx.createBuffer(1, 1, 22050);

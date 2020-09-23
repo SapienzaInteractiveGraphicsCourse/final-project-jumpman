@@ -1,13 +1,15 @@
 import {setCookie, getCookie} from './utils.js';
 import {mainMenu} from './menu.js';
 
+// Gets the leaderboards from the cookies
 function getLeaderboard() {
     const leaderboard = getCookie("leaderboard");
     if (leaderboard != "")
         return JSON.parse(getCookie("leaderboard"));
     else return [];
 }
-  
+
+// Adds a score to the leaderboard
 function addToLeaderboard(player, score) {
     if (player == null) return;
     let leaderboard = getLeaderboard();
@@ -18,11 +20,12 @@ function addToLeaderboard(player, score) {
     setCookie("leaderboard", JSON.stringify(leaderboard));
 }
 
+// Clears the leaderboard from the cookies
 function clearLeaderboard() {
     setCookie("leaderboard", "");
 }
 
-
+// Draws the leaderboard page
 function leaderboard() {
     document.body.innerHTML = "";
     document.body.scrollTop = 0;

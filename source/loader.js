@@ -15,6 +15,7 @@ function setTextureProperties(tx) {
     tx.wrapT = THREE.RepeatWrapping;
 }
 
+// The loader objects is used to load the assets
 const Loader = {
     loaded: false,
 
@@ -48,7 +49,7 @@ const Loader = {
         }
     },
 
-    load: function(anisotropy) {
+    load: function() {
         document.body.innerHTML = "";
         const text = document.createElement("h");
         text.innerText = "Loading...";
@@ -56,7 +57,7 @@ const Loader = {
         for (const texture of Object.values(this.assets.textures)) {
             textureLoader.load(texture.href, (data) => {
                 texture.data = data;
-                setTextureProperties(data, anisotropy);
+                setTextureProperties(data);
             });
         }
         for (const object of Object.values(this.assets.objects)) {

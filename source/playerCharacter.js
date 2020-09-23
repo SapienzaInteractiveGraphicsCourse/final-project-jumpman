@@ -51,6 +51,7 @@ let gravityFall;
 
 let bouncing = false;
 
+// Starts the falling animation
 function startFallAnimation() {
     bouncing = false;
 
@@ -81,12 +82,17 @@ function startFallAnimation() {
     gravityFall.start();
 }
 
+// Stops the falling animation
 function stopFallAnimation() {
     jumpToLong.stop();
     freeFall.stop();
     gravityFall.stop();
 }
 
+// Starts the jumping animation
+// If high = false it jumps by 15 points
+// If high = true it jumps by 44 points
+// Once the jump animations completes the falling animations is restarted
 function startJumpAnimation(high = false) {
     stopFallAnimation();
 
@@ -158,6 +164,7 @@ function startJumpAnimation(high = false) {
     jump.start();
 }
 
+// Initializes the player character and adds it to the scene
 function init(scene) {
     const torsoMat = new THREE.MeshPhongMaterial({color: "red"});
     const armMat = new THREE.MeshPhongMaterial({color: 0xFFE4C4});
@@ -301,7 +308,7 @@ function init(scene) {
     scene.add(playerCharcter); 
 }
 
-
+// Updates the player character
 function update() {
     torsoBBox.setFromObject(torso);
     container.position.y = torsoBBox.max.y - torsoBBox.min.y-torsoHeight/2*scale;
