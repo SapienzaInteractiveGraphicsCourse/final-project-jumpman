@@ -276,7 +276,7 @@ function initGeometries() {
     
     const extrudeSettings = {
       steps:   1,  
-      depth:  stepDepth,  
+      depth:  stepHeight,  
       bevelEnabled: false,  
     };
     geometries.brokenStepLeft = new THREE.ExtrudeBufferGeometry( leftShape, extrudeSettings ); 

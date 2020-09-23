@@ -469,7 +469,6 @@ function start() {
                             lastRealStep = step.userData.id;
                             lastStep = step.name;
     
-                            //trovare soluzione migliore
                             if (camera.obj.position.y>60){
                                 column.up(y);                           
                             }
