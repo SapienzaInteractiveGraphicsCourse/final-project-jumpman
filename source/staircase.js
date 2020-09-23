@@ -86,7 +86,7 @@ const stepTypeGenerator = {
     }
 }
 
-// Initializes the various types of steps
+// Initializes the materials of the steps
 function initStepsMaterials() {
     //real step
     materials.realStep = new THREE.MeshPhongMaterial({
@@ -513,6 +513,7 @@ function removeSteps(num) {
 
 // Updates the staircase
 function update(move, frustum) {
+    // Updates the bounding boxes of the steps
     for (let i=0; i<realSteps.length; i++) {
         if(realSteps[i].userData.type == stepTypes.HIGH_JUMP) {
             const stepTop = realSteps[i].getObjectByName("stepTop");
@@ -528,14 +529,16 @@ function update(move, frustum) {
         }
     }
 
+    // Removes the steps that are out of the view frustum
     if (!frustum.containsPoint(allSteps[0].position)) {
         removeSteps(1);
     }
 
+    // Moves the staircase
     staircase.rotation.y += 0.02 * move;
 }
 
-// Moves the central column of the staircase by y points
+// Moves the central column of the staircase up by y points
 function up(y) {
     const up = new TWEEN.Tween(column.position) 
         .to({y: y}, 1000) 
