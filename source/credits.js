@@ -13,8 +13,8 @@ function credits() {
     creditsPar.innerHTML = 
     "I have developed this game as part of the Interactive Graphics course from the Engineering " +
     "in Computer Science master's degree at Sapienza - University of Rome. <br><br>" +
-    "The project is developed using the three.js, tween.js, OBB.js, OBJLoader2.js, MTLLoader.js " +
-    "and MtlObjBridge.js libraries used respectively for 3D graphics, animations, collisions and " + 
+    "The project is developed using the three.js, tween.js, OBB.js, stats.js, OBJLoader2.js, MTLLoader.js " +
+    "and MtlObjBridge.js libraries used respectively for 3D graphics, animations, collisions detection, FPS statistics and " + 
     "loading objects and materials. <br><br>" +
     "Various royalty free assets are used:<br>" +
     "<ul><li>The <a href='./../assets/break.wav'>break.wav</a> sound effect has been obtained from <a href='https://freesound.org/people/JustInvoke/sounds/446119/'>freesound.org</a> and created by user JustInvoke" +

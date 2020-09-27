@@ -327,7 +327,7 @@ const playAndPause = {
         const resumeBt = document.createElement("button");
         resumeBt.setAttribute("class", "game-button");
         resumeBt.innerText = "Resume";
-        resumeBt.style.marginTop = "40%";
+        resumeBt.style.marginTop = "30vh";
         resumeBt.onclick = play;
         darkDiv.appendChild(resumeBt);
     
